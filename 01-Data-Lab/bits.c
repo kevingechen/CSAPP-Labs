@@ -150,6 +150,7 @@ int bitXor(int x, int y) {
   int varB = (~y) & x;
   return ~((~varA) & (~varB));
 }
+
 /* 
  * tmin - return minimum two's complement integer 
  *   Legal ops: ! ~ & ^ | + << >>
@@ -161,6 +162,7 @@ int tmin(void) {
   return 1 << 31;
 
 }
+
 //2
 /*
  * isTmax - returns 1 if x is the maximum, two's complement number,
@@ -173,6 +175,7 @@ int isTmax(int x) {
   /* Tmin == Tmax + 1 == ~Tmax && Tmax + 1 != 0 */
   return (!((~x) ^ (x+1))) & (!!(x+1));
 }
+
 /* 
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
  *   where bits are numbered from 0 (least significant) to 31 (most significant)
@@ -190,6 +193,7 @@ int allOddBits(int x) {
       
   return !(var ^ 0xAA);
 }
+
 /* 
  * negate - return -x 
  *   Example: negate(1) = -1.
@@ -198,8 +202,9 @@ int allOddBits(int x) {
  *   Rating: 2
  */
 int negate(int x) {
-  return 2;
+  return ~x + 1;
 }
+
 //3
 /* 
  * isAsciiDigit - return 1 if 0x30 <= x <= 0x39 (ASCII codes for characters '0' to '9')
@@ -211,8 +216,17 @@ int negate(int x) {
  *   Rating: 3
  */
 int isAsciiDigit(int x) {
-  return 2;
+  /* higher 4 bits exactly 0x30
+   * and
+   * lower 4 bits are 0b0xxx or 0b100x
+   */
+  int higher4Bits = x & 0xFFFFFFF0;
+  int lower4thBit = x & 0x08;
+  int lower2ndTo4thBits = x & 0x0E;
+  
+  return (!(0x30 ^ higher4Bits)) & (!lower4thBit | !(lower2ndTo4thBits ^ 0x08));
 }
+
 /* 
  * conditional - same as x ? y : z 
  *   Example: conditional(2,4,5) = 4
@@ -223,6 +237,7 @@ int isAsciiDigit(int x) {
 int conditional(int x, int y, int z) {
   return 2;
 }
+
 /* 
  * isLessOrEqual - if x <= y  then return 1, else return 0 
  *   Example: isLessOrEqual(4,5) = 1.
