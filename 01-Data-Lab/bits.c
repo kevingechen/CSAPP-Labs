@@ -1,7 +1,7 @@
 /* 
  * CS:APP Data Lab 
  * 
- * <Please put your name and userid here>
+ * kevingechen
  * 
  * bits.c - Source file with your solutions to the Lab.
  *          This is the file you will hand in to your instructor.
@@ -220,7 +220,7 @@ int isAsciiDigit(int x) {
    * and
    * lower 4 bits are 0b0xxx or 0b100x
    */
-  int higher4Bits = x & 0xFFFFFFF0;
+  int higher4Bits = x & ((~0) ^ 0x0F);
   int lower4thBit = x & 0x08;
   int lower2ndTo4thBits = x & 0x0E;
   
@@ -235,7 +235,7 @@ int isAsciiDigit(int x) {
  *   Rating: 3
  */
 int conditional(int x, int y, int z) {
-  return 2;
+  return ((~(!!x) + 1) & y)  | ((~(!x) + 1) & z);
 }
 
 /* 
@@ -246,8 +246,17 @@ int conditional(int x, int y, int z) {
  *   Rating: 3
  */
 int isLessOrEqual(int x, int y) {
-  return 2;
+  int Tmin = 1 << 31;
+  int isNonNegativeX = !(Tmin & x);
+  int isNegativeX = !isNonNegativeX;
+  int isNonNegativeY = !(Tmin & y);
+  int isNegativeY = !isNonNegativeY;
+  int yMinusX = (~x) + 1 + y;
+  int isNonNegativeYMinusX = !(Tmin & yMinusX);
+
+  return (!(isNonNegativeX & isNegativeY)) & ((isNegativeX & isNonNegativeY) | isNonNegativeYMinusX);
 }
+
 //4
 /* 
  * logicalNeg - implement the ! operator, using all of 
