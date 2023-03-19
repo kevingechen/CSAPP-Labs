@@ -220,7 +220,7 @@ int isAsciiDigit(int x) {
    * and
    * lower 4 bits are 0b0xxx or 0b100x
    */
-  int higher4Bits = x & ((~0) ^ 0x0F);
+  int higher4Bits = x & (~ 0x0F);
   int lower4thBit = x & 0x08;
   int lower2ndTo4thBits = x & 0x0E;
   
@@ -267,8 +267,14 @@ int isLessOrEqual(int x, int y) {
  *   Rating: 4 
  */
 int logicalNeg(int x) {
-  return 2;
+  int reverseX = ~x;
+  int fold16Bits = reverseX & (reverseX >> 16);
+  int fold8Bits = fold16Bits & (fold16Bits >> 8);
+  int fold4Bits = fold8Bits & (fold8Bits >> 4);
+  int fold2Bits = fold4Bits & (fold4Bits >> 2);
+  return fold2Bits & (fold2Bits >> 1) & 1;
 }
+
 /* howManyBits - return the minimum number of bits required to represent x in
  *             two's complement
  *  Examples: howManyBits(12) = 5
