@@ -288,8 +288,19 @@ int logicalNeg(int x) {
  *  Rating: 4
  */
 int howManyBits(int x) {
+  int Tmin = 1 << 31;
+  int negOne = ~0;
+  int isNonNeg = !(Tmin & x);
+  int absoluteX = (isNonNeg + negOne) ^ x;
+  int roundUpAbsoluteX = absoluteX |
+                            (absoluteX >> 1) |
+                            (absoluteX >> 2) |
+                            (absoluteX >> 4) |
+                            (absoluteX >> 8) |
+                            ;
   return 0;
 }
+
 //float
 /* 
  * floatScale2 - Return bit-level equivalent of expression 2*f for
