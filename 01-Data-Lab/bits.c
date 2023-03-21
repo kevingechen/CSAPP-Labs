@@ -292,12 +292,11 @@ int howManyBits(int x) {
   int negOne = ~0;
   int isNonNeg = !(Tmin & x);
   int absoluteX = (isNonNeg + negOne) ^ x;
-  int roundUpAbsoluteX = absoluteX |
-                            (absoluteX >> 1) |
-                            (absoluteX >> 2) |
-                            (absoluteX >> 4) |
-                            (absoluteX >> 8) |
-                            ;
+  int or1Bit = absoluteX | (absoluteX >> 1);
+  int or2Bits = or1Bit | (or1Bit >> 2);
+  int or4Bits = or2Bits | (or2Bits >> 4);
+  int or8Bits = or4Bits | (or4Bits >> 8);
+  int upperBound = or8Bits | (or8Bits >> 16);
   return 0;
 }
 
