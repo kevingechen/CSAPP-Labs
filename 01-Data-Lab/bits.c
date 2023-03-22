@@ -297,7 +297,49 @@ int howManyBits(int x) {
   int or4Bits = or2Bits | (or2Bits >> 4);
   int or8Bits = or4Bits | (or4Bits >> 8);
   int upperBound = or8Bits | (or8Bits >> 16);
-  return 0;
+  /* upperBound is the max value for n-bit two's complement 0b0...011...1*/
+  int higher16Bits = upperBound >> 16;
+  int lower16Bits = (~(Tmin >> 15)) & upperBound;
+  int isLessOrEqualThan16Bits = !higher16Bits;
+  int useHigher16BitsMask = isLessOrEqualThan16Bits + negOne;
+  int remained16Bits = (useHigher16BitsMask & higher16Bits) |
+                        ((~useHigher16BitsMask) & lower16Bits);
+
+  int higher8Bits = remained16Bits >> 8;
+  int lower8Bits = remained16Bits & 0xFF;
+  int isLessOrEqualThan8Bits = !higher8Bits;
+  int useHigher8BitsMask = isLessOrEqualThan8Bits + negOne;
+  int remained8Bits = (useHigher8BitsMask & higher8Bits) |
+                        ((~useHigher8BitsMask) & lower8Bits);
+
+  int higher4Bits = remained8Bits >> 4;
+  int lower4Bits = remained8Bits & 0x0F;
+  int isLessOrEqualThan4Bits = !higher4Bits;
+  int useHigher4BitsMask = isLessOrEqualThan4Bits + negOne;
+  int remained4Bits = (useHigher4BitsMask & higher4Bits) |
+                        ((~useHigher4BitsMask) & lower4Bits);
+
+  int higher2Bits = remained4Bits >> 2;
+  int lower2Bits = remained4Bits & 0x03;
+  int isLessOrEqualThan2Bits = !higher2Bits;
+  int useHigher2BitsMask = isLessOrEqualThan2Bits + negOne;
+  int remained2Bits = (useHigher2BitsMask & higher2Bits) |
+                        ((~useHigher2BitsMask) & lower2Bits);
+
+  int higher1Bit = remained2Bits >> 1;
+  int lower1Bit = remained2Bits & 0x01;
+  int isLessOrEqualThan1Bit = !higher1Bit;
+  int useHigher1BitMask = isLessOrEqualThan1Bit + negOne;
+  int remained1Bit = (useHigher1BitMask & higher1Bit) |
+                        ((~useHigher1BitMask) & lower1Bit);
+
+  return 1 +
+      (useHigher16BitsMask & 16) +
+      (useHigher8BitsMask & 8) +
+      (useHigher4BitsMask & 4) +
+      (useHigher2BitsMask & 2) +
+      (useHigher1BitMask & 1) +
+      remained1Bit;
 }
 
 //float
