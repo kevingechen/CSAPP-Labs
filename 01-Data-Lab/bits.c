@@ -297,7 +297,10 @@ int howManyBits(int x) {
   int or4Bits = or2Bits | (or2Bits >> 4);
   int or8Bits = or4Bits | (or4Bits >> 8);
   int upperBound = or8Bits | (or8Bits >> 16);
-  /* upperBound is the max value for n-bit two's complement 0b0...011...1*/
+  /* 
+   * upperBound is the max value for n-bit two's complement 0b0...011...1
+   * the result is got by counting number of 1s in upperBound
+   */
   int higher16Bits = upperBound >> 16;
   int lower16Bits = (~(Tmin >> 15)) & upperBound;
   int isLessOrEqualThan16Bits = !higher16Bits;
@@ -355,8 +358,19 @@ int howManyBits(int x) {
  *   Rating: 4
  */
 unsigned floatScale2(unsigned uf) {
-  return 2;
+  int signMask = 1 << 31;
+  int expMask = (signMask >> 8) & (~signMask);
+  unsigned exp = uf & expMask;
+  if (exp == 0) {
+    /* deal with +0 and -0 */
+    return (uf << 1) | (signMask & uf);
+  } else if (exp == expMask) {
+    return uf;
+  } else {
+    return uf + (1 << 23);
+  }
 }
+
 /* 
  * floatFloat2Int - Return bit-level equivalent of expression (int) f
  *   for floating point argument f.
@@ -372,6 +386,7 @@ unsigned floatScale2(unsigned uf) {
 int floatFloat2Int(unsigned uf) {
   return 2;
 }
+
 /* 
  * floatPower2 - Return bit-level equivalent of the expression 2.0^x
  *   (2.0 raised to the power x) for any 32-bit integer x.
