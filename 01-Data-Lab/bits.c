@@ -384,7 +384,29 @@ unsigned floatScale2(unsigned uf) {
  *   Rating: 4
  */
 int floatFloat2Int(unsigned uf) {
-  return 2;
+  int signMask = 1 << 31;
+  int expMask = (signMask >> 8) & (~signMask);
+  int significandMask = ~(signMask >> 8);
+
+  int isNonNeg = !(signMask & uf);
+  unsigned expShifted = (uf & expMask) >> 23;
+  int significand = (1 << 23) | (uf & significandMask);
+  unsigned expMin = 127;
+  unsigned expMax = 157;
+  unsigned expSep = 150;
+  if (expShifted < expMin) {
+      return 0;
+  } else if (expShifted > expMax) {
+      return signMask;
+  } else {
+      if (expShifted >= expSep) {
+          significand <<= (expShifted - expSep);
+      } else {
+          significand >>= (expSep - expShifted);
+      }
+  }
+
+  return isNonNeg ? significand : (-significand);
 }
 
 /* 
