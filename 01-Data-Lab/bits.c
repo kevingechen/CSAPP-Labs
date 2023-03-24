@@ -423,5 +423,13 @@ int floatFloat2Int(unsigned uf) {
  *   Rating: 4
  */
 unsigned floatPower2(int x) {
-    return 2;
+    unsigned posInfinity = 0x7F800000;
+    if (x < -126) {
+      return 0;
+    } else if (x > 127) {
+      return posInfinity;
+    } else {
+      int expShifted = x + 127;
+      return expShifted << 23;
+    }
 }
