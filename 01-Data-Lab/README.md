@@ -15,7 +15,7 @@ System requirements: Uses bison and flex to build dlc.
 
 ## 1. Overview
 
-In this lab, students work on a C file, called [bits.c](01-Data-Lab/src/bits.c), that consists
+In this lab, students work on a C file, called [bits.c](src/bits.c), that consists
 of a series of programming "puzzles".  Each puzzle is an empty
 function body that must be completed so that it implements a specified
 mathematical function, such as "absolute value". Students must solve
