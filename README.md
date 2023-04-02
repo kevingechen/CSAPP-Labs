@@ -6,4 +6,4 @@ way.
 
 ## Labs
 - [x] [Data Lab](/01-Data-Lab)
-- [ ] Bomb Lab
+- [ ] [Bomb Lab](/o2-Bomb-Lab)

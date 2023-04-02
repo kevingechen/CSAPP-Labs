@@ -38,9 +38,21 @@ start analyzing the assembly code for phase\_1
   0x400ef7 <phase_1+23>   add    $0x8,%rsp                      # pop up the stack 8 bytes
   0x400efb <phase_1+27>   retq
 ```
+We can further break at the `strings_not_equal` call
+```
+  0x401338 <strings_not_equal>    push   %r12
+  0x40133a <strings_not_equal+2>  push   %rbp
+  0x40133b <strings_not_equal+3>  push   %rbx
+  0x40133c <strings_not_equal+4>  mov    %rdi,%rbx
+  0x40133f <strings_not_equal+7>  mov    %rsi,%rbp
+  0x401342 <strings_not_equal+10> callq  0x40131b <string_length>
+```
 According to the assembly code for phase\_1, we can read the string from address 0x402400
 ```
   (gdb) i/s 0x402400
   0x402400:       "Border relations with Canada have never been better."
 ```
 We get phase\_1 !!
+
+
+## Phase 2
