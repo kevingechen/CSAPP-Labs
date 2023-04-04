@@ -40,44 +40,44 @@ start analyzing the assembly code for phase\_1
 ```
 We can further break at the `strings_not_equal` call
 ```
-  0x401338:   41 54                   push   %r12
-  0x40133a:   55                      push   %rbp
-  0x40133b:   53                      push   %rbx
-  0x40133c:   48 89 fb                mov    %rdi,%rbx
-  0x40133f:   48 89 f5                mov    %rsi,%rbp
-  0x401342:   e8 d4 ff ff ff          callq  40131b <string_length>
-  0x401347:   41 89 c4                mov    %eax,%r12d
-  0x40134a:   48 89 ef                mov    %rbp,%rdi
-  0x40134d:   e8 c9 ff ff ff          callq  40131b <string_length>
-  0x401352:   ba 01 00 00 00          mov    $0x1,%edx
-  0x401357:   41 39 c4                cmp    %eax,%r12d
-  0x40135a:   75 3f                   jne    40139b <strings_not_equal+0x63>
-  0x40135c:   0f b6 03                movzbl (%rbx),%eax
-  0x40135f:   84 c0                   test   %al,%al
-  0x401361:   74 25                   je     401388 <strings_not_equal+0x50>
-  0x401363:   3a 45 00                cmp    0x0(%rbp),%al
-  0x401366:   74 0a                   je     401372 <strings_not_equal+0x3a>
-  0x401368:   eb 25                   jmp    40138f <strings_not_equal+0x57>
-  0x40136a:   3a 45 00                cmp    0x0(%rbp),%al
-  0x40136d:   0f 1f 00                nopl   (%rax)
-  0x401370:   75 24                   jne    401396 <strings_not_equal+0x5e>
-  0x401372:   48 83 c3 01             add    $0x1,%rbx
-  0x401376:   48 83 c5 01             add    $0x1,%rbp
-  0x40137a:   0f b6 03                movzbl (%rbx),%eax
-  0x40137d:   84 c0                   test   %al,%al
-  0x40137f:   75 e9                   jne    40136a <strings_not_equal+0x32>
-  0x401381:   ba 00 00 00 00          mov    $0x0,%edx
-  0x401386:   eb 13                   jmp    40139b <strings_not_equal+0x63>
-  0x401388:   ba 00 00 00 00          mov    $0x0,%edx
-  0x40138d:   eb 0c                   jmp    40139b <strings_not_equal+0x63>
-  0x40138f:   ba 01 00 00 00          mov    $0x1,%edx
-  0x401394:   eb 05                   jmp    40139b <strings_not_equal+0x63>
-  0x401396:   ba 01 00 00 00          mov    $0x1,%edx
-  0x40139b:   89 d0                   mov    %edx,%eax
-  0x40139d:   5b                      pop    %rbx
-  0x40139e:   5d                      pop    %rbp
-  0x40139f:   41 5c                   pop    %r12
-  0x4013a1:   c3                      retq
+  0x401338:             push   %r12
+  0x40133a:             push   %rbp
+  0x40133b:             push   %rbx
+  0x40133c:             mov    %rdi,%rbx
+  0x40133f:             mov    %rsi,%rbp
+  0x401342:             callq  40131b <string_length>
+  0x401347:             mov    %eax,%r12d
+  0x40134a:             mov    %rbp,%rdi
+  0x40134d:             callq  40131b <string_length>
+  0x401352:             mov    $0x1,%edx
+  0x401357:             cmp    %eax,%r12d
+  0x40135a:             jne    40139b <strings_not_equal+0x63>
+  0x40135c:             movzbl (%rbx),%eax
+  0x40135f:             test   %al,%al
+  0x401361:             je     401388 <strings_not_equal+0x50>
+  0x401363:             cmp    0x0(%rbp),%al
+  0x401366:             je     401372 <strings_not_equal+0x3a>
+  0x401368:             jmp    40138f <strings_not_equal+0x57>
+  0x40136a:             cmp    0x0(%rbp),%al
+  0x40136d:             nopl   (%rax)
+  0x401370:             jne    401396 <strings_not_equal+0x5e>
+  0x401372:             add    $0x1,%rbx
+  0x401376:             add    $0x1,%rbp
+  0x40137a:             movzbl (%rbx),%eax
+  0x40137d:             test   %al,%al
+  0x40137f:             jne    40136a <strings_not_equal+0x32>
+  0x401381:             mov    $0x0,%edx
+  0x401386:             jmp    40139b <strings_not_equal+0x63>
+  0x401388:             mov    $0x0,%edx
+  0x40138d:             jmp    40139b <strings_not_equal+0x63>
+  0x40138f:             mov    $0x1,%edx
+  0x401394:             jmp    40139b <strings_not_equal+0x63>
+  0x401396:             mov    $0x1,%edx
+  0x40139b:             mov    %edx,%eax
+  0x40139d:             pop    %rbx
+  0x40139e:             pop    %rbp
+  0x40139f:             pop    %r12
+  0x4013a1:             retq
 ```
 According to the assembly code for phase\_1, we can read the string from address 0x402400
 ```
@@ -88,3 +88,38 @@ We get phase\_1 !!
 
 
 ## Phase 2
+
+We continue to set a break point at phase\_2 
+```
+  (gdb) b phase_2
+  (gdb) r
+  (gdb) layout asm
+```
+and get the assembly code
+```
+  0x400efc:             push   %rbp
+  0x400efd:             push   %rbx
+  0x400efe:             sub    $0x28,%rsp
+  0x400f02:             mov    %rsp,%rsi
+  0x400f05:             callq  40145c <read_six_numbers>
+  0x400f0a:             cmpl   $0x1,(%rsp)
+  0x400f0e:             je     400f30 <phase_2+0x34>
+  0x400f10:             callq  40143a <explode_bomb>
+  0x400f15:             jmp    400f30 <phase_2+0x34>
+  0x400f17:             mov    -0x4(%rbx),%eax
+  0x400f1a:             add    %eax,%eax
+  0x400f1c:             cmp    %eax,(%rbx)
+  0x400f1e:             je     400f25 <phase_2+0x29>
+  0x400f20:             callq  40143a <explode_bomb>
+  0x400f25:             add    $0x4,%rbx
+  0x400f29:             cmp    %rbp,%rbx
+  0x400f2c:             jne    400f17 <phase_2+0x1b>
+  0x400f2e:             jmp    400f3c <phase_2+0x40>
+  0x400f30:             lea    0x4(%rsp),%rbx
+  0x400f35:             lea    0x18(%rsp),%rbp
+  0x400f3a:             jmp    400f17 <phase_2+0x1b>
+  0x400f3c:             add    $0x28,%rsp
+  0x400f40:             pop    %rbx
+  0x400f41:             pop    %rbp
+  0x400f42:             retq
+```
