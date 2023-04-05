@@ -4,8 +4,14 @@
 In this lab, students are given a x64 binary [bomb](src/bomb) and a main file [bomb.c](src/bomb.c). From the
 main routine, we can see that there are 6 phases to guess in order to pass the bomb game. If any phase not
 matched, the program returns immediately with a BOMB message. The target of Bomb Lab is to crack the 6 phases
-by understanding the assembly code complied for binary bomb. We are going to defuse the phases one by one,
-with `gdb`.
+by understanding the assembly code complied for binary bomb. To obtain the assembly code for bomb, you can
+simply enter current directory and execute
+```sh
+  unix > objdump -d src/bomb > src/bomb.a
+```
+then you can browse the assembly program in `src/bomb.a`.
+Next, We are going to defuse the phases one by one, with `gdb`.
+
 
 ## Phase 1
 Assume you are now in our current directory on a unix shell, let's enter our src folder and launch `gdb`
@@ -89,37 +95,40 @@ We get phase\_1 !!
 
 ## Phase 2
 
+To accelerate the procedure, we can put all previous defused phases into a file `src/solution.txt` such that
+we can run directly to later phase breakpoint by executing
+
 We continue to set a break point at phase\_2 
 ```
   (gdb) b phase_2
-  (gdb) r
+  (gdb) r solution.txt
   (gdb) layout asm
 ```
 and get the assembly code
 ```
-  0x400efc:             push   %rbp
-  0x400efd:             push   %rbx
-  0x400efe:             sub    $0x28,%rsp
-  0x400f02:             mov    %rsp,%rsi
-  0x400f05:             callq  40145c <read_six_numbers>
-  0x400f0a:             cmpl   $0x1,(%rsp)
-  0x400f0e:             je     400f30 <phase_2+0x34>
-  0x400f10:             callq  40143a <explode_bomb>
-  0x400f15:             jmp    400f30 <phase_2+0x34>
-  0x400f17:             mov    -0x4(%rbx),%eax
-  0x400f1a:             add    %eax,%eax
-  0x400f1c:             cmp    %eax,(%rbx)
-  0x400f1e:             je     400f25 <phase_2+0x29>
-  0x400f20:             callq  40143a <explode_bomb>
-  0x400f25:             add    $0x4,%rbx
-  0x400f29:             cmp    %rbp,%rbx
-  0x400f2c:             jne    400f17 <phase_2+0x1b>
-  0x400f2e:             jmp    400f3c <phase_2+0x40>
-  0x400f30:             lea    0x4(%rsp),%rbx
-  0x400f35:             lea    0x18(%rsp),%rbp
-  0x400f3a:             jmp    400f17 <phase_2+0x1b>
-  0x400f3c:             add    $0x28,%rsp
-  0x400f40:             pop    %rbx
-  0x400f41:             pop    %rbp
-  0x400f42:             retq
+  0x400efc:   push   %rbp                          # save address of previous stack frame
+  0x400efd:   push   %rbx                          # save previous calculation value
+  0x400efe:   sub    $0x28,%rsp                    # push down stack for 40 bytes
+  0x400f02:   mov    %rsp,%rsi                     # save current stack frame to rsi
+  0x400f05:   callq  40145c <read_six_numbers>
+  0x400f0a:   cmpl   $0x1,(%rsp)                   # compare the first number with integer 1
+  0x400f0e:   je     400f30 <phase_2+0x34>         # to to instruction at address 0x400f30
+  0x400f10:   callq  40143a <explode_bomb>         # BOMB if first number not equal to 1
+  0x400f15:   jmp    400f30 <phase_2+0x34>
+  0x400f17:   mov    -0x4(%rbx),%eax               # move previous number to eax
+  0x400f1a:   add    %eax,%eax                     # double eax
+  0x400f1c:   cmp    %eax,(%rbx)                   # compare eax with current number
+  0x400f1e:   je     400f25 <phase_2+0x29>
+  0x400f20:   callq  40143a <explode_bomb>
+  0x400f25:   add    $0x4,%rbx
+  0x400f29:   cmp    %rbp,%rbx
+  0x400f2c:   jne    400f17 <phase_2+0x1b>
+  0x400f2e:   jmp    400f3c <phase_2+0x40>
+  0x400f30:   lea    0x4(%rsp),%rbx
+  0x400f35:   lea    0x18(%rsp),%rbp
+  0x400f3a:   jmp    400f17 <phase_2+0x1b>
+  0x400f3c:   add    $0x28,%rsp
+  0x400f40:   pop    %rbx
+  0x400f41:   pop    %rbp
+  0x400f42:   retq
 ```
