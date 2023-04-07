@@ -87,7 +87,7 @@ We can further break at the `strings_not_equal` call
 ```
 According to the assembly code for phase\_1, we can read the string from address 0x402400
 ```
-  (gdb) i/s 0x402400
+  (gdb) x/s 0x402400
   0x402400:       "Border relations with Canada have never been better."
 ```
 We get phase\_1 !!
@@ -140,19 +140,19 @@ line in [solution.txt](/src/solution.txt)
 ## Phase 3
 
 ```
-  0x400f43:    sub    $0x18,%rsp
-  0x400f47:    lea    0xc(%rsp),%rcx
-  0x400f4c:    lea    0x8(%rsp),%rdx
-  0x400f51:    mov    $0x4025cf,%esi
-  0x400f56:    mov    $0x0,%eax
-  0x400f5b:    callq  0x400bf0 <__isoc99_sscanf@plt>
-  0x400f60:    cmp    $0x1,%eax
-  0x400f63:    jg     0x400f6a <phase_3+0x27>
+  0x400f43:    sub    $0x18,%rsp                      # push down stack 24 bytes
+  0x400f47:    lea    0xc(%rsp),%rcx                  # rcx = stack pointer + 12
+  0x400f4c:    lea    0x8(%rsp),%rdx                  # rdx = stack pointer + 8
+  0x400f51:    mov    $0x4025cf,%esi                  # esi = 0x4025cf ("%d %d")
+  0x400f56:    mov    $0x0,%eax                       # eax = 0
+  0x400f5b:    callq  0x400bf0 <__isoc99_sscanf@plt>  # call sscanf to parse input phase
+  0x400f60:    cmp    $0x1,%eax                       # check if size > 1
+  0x400f63:    jg     0x400f6a <phase_3+0x27>         # jump to instruction 0x400f6a if size > 1
   0x400f65:    callq  0x40143a <explode_bomb>
   0x400f6a:    cmpl   $0x7,0x8(%rsp)
   0x400f6f:    ja     0x400fad <phase_3+0x6a>
-  0x400f71:    mov    0x8(%rsp),%eax
-  0x400f75:    jmpq   *0x402470(,%rax,8)
+  0x400f71:    mov    0x8(%rsp),%eax                  # put the first input number to eax
+  0x400f75:    jmpq   *0x402470(,%rax,8)              # jump to instrction at (8 * rax + 0x402470) = 0x402480
   0x400f7c:    mov    $0xcf,%eax
   0x400f81:    jmp    0x400fbe <phase_3+0x7b>
   0x400f83:    mov    $0x2c3,%eax
