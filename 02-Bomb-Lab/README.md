@@ -149,31 +149,31 @@ line in [solution.txt](/src/solution.txt)
   0x400f60:    cmp    $0x1,%eax                       # check if size > 1
   0x400f63:    jg     0x400f6a <phase_3+0x27>         # jump to instruction 0x400f6a if size > 1
   0x400f65:    callq  0x40143a <explode_bomb>
-  0x400f6a:    cmpl   $0x7,0x8(%rsp)
-  0x400f6f:    ja     0x400fad <phase_3+0x6a>
+  0x400f6a:    cmpl   $0x7,0x8(%rsp)                  # compare the first input number with 7
+  0x400f6f:    ja     0x400fad <phase_3+0x6a>         # first number <= 7, then go to instruction 0x400fad
   0x400f71:    mov    0x8(%rsp),%eax                  # put the first input number to eax
-  0x400f75:    jmpq   *0x402470(,%rax,8)              # jump to instrction at (8 * rax + 0x402470) = 0x402480
-  0x400f7c:    mov    $0xcf,%eax
-  0x400f81:    jmp    0x400fbe <phase_3+0x7b>
-  0x400f83:    mov    $0x2c3,%eax
-  0x400f88:    jmp    0x400fbe <phase_3+0x7b>
-  0x400f8a:    mov    $0x100,%eax
-  0x400f8f:    jmp    0x400fbe <phase_3+0x7b>
-  0x400f91:    mov    $0x185,%eax
-  0x400f96:    jmp    0x400fbe <phase_3+0x7b>
-  0x400f98:    mov    $0xce,%eax
-  0x400f9d:    jmp    0x400fbe <phase_3+0x7b>
-  0x400f9f:    mov    $0x2aa,%eax
-  0x400fa4:    jmp    0x400fbe <phase_3+0x7b>
-  0x400fa6:    mov    $0x147,%eax
-  0x400fab:    jmp    0x400fbe <phase_3+0x7b>
-  0x400fad:    callq  0x40143a <explode_bomb>
-  0x400fb2:    mov    $0x0,%eax
-  0x400fb7:    jmp    0x400fbe <phase_3+0x7b>
-  0x400fb9:    mov    $0x137,%eax
-  0x400fbe:    cmp    0xc(%rsp),%eax
-  0x400fc2:    je     0x400fc9 <phase_3+0x86>
-  0x400fc4:    callq  0x40143a <explode_bomb>
-  0x400fc9:    add    $0x18,%rsp
+  0x400f75:    jmpq   *0x402470(,%rax,8)              # jump to instrction at (8 * rax + *0x402470)
+  0x400f7c:    mov    $0xcf,%eax                      #################################################
+  0x400f81:    jmp    0x400fbe <phase_3+0x7b>         #  This part can be intepreted as the following
+  0x400f83:    mov    $0x2c3,%eax                     #  pseudo code:
+  0x400f88:    jmp    0x400fbe <phase_3+0x7b>         #    eax = switch (first input number) {
+  0x400f8a:    mov    $0x100,%eax                     #      0 => 0xcf 
+  0x400f8f:    jmp    0x400fbe <phase_3+0x7b>         #      1 => 0x2c3
+  0x400f91:    mov    $0x185,%eax                     #      2 => 0x100
+  0x400f96:    jmp    0x400fbe <phase_3+0x7b>         #      3 => 0x185
+  0x400f98:    mov    $0xce,%eax                      #      4 => 0xce
+  0x400f9d:    jmp    0x400fbe <phase_3+0x7b>         #      5 => 0x2aa
+  0x400f9f:    mov    $0x2aa,%eax                     #      6 => 0x147
+  0x400fa4:    jmp    0x400fbe <phase_3+0x7b>         #      7 => 0x137
+  0x400fa6:    mov    $0x147,%eax                     #    }                                      
+  0x400fab:    jmp    0x400fbe <phase_3+0x7b>         #                                      
+  0x400fad:    callq  0x40143a <explode_bomb>         # 
+  0x400fb2:    mov    $0x0,%eax                       #
+  0x400fb7:    jmp    0x400fbe <phase_3+0x7b>         #
+  0x400fb9:    mov    $0x137,%eax                     ################################################# 
+  0x400fbe:    cmp    0xc(%rsp),%eax                  # compare the second number with eax
+  0x400fc2:    je     0x400fc9 <phase_3+0x86>         # PASS if the second number == eax
+  0x400fc4:    callq  0x40143a <explode_bomb>         # BOMB otherwise
+  0x400fc9:    add    $0x18,%rsp                      # pop up the stack 24 bytes
   0x400fcd:    retq
 ```
