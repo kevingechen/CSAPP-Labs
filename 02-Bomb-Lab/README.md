@@ -135,9 +135,16 @@ and get the assembly code
 From the disassembled fraction of phase\_2, we know that it takes an array of 6 numbers.
 The first number should be 1, and for the following numbers, each should be the twice of
 its previous neighbor. Hence, phase\_2 must be "1 2 4 8 16 32". Let's add it to a second
-line in [solution.txt](/src/solution.txt)
+line in [solution.txt](src/solution.txt)
 
 ## Phase 3
+Taking the phase\_2 result, we can quickly break at phase\_3 and run directly here
+```
+  (gdb) b phase_3
+  (gdb) r solution.txt
+  (gdb) layout asm
+```
+and get the assembly code
 
 ```
   0x400f43:    sub    $0x18,%rsp                      # push down stack 24 bytes
@@ -176,4 +183,27 @@ line in [solution.txt](/src/solution.txt)
   0x400fc4:    callq  0x40143a <explode_bomb>         # BOMB otherwise
   0x400fc9:    add    $0x18,%rsp                      # pop up the stack 24 bytes
   0x400fcd:    retq
+```
+For the following part, we know phase\_3 calls sscanf to load input phase by format
+```
+  0x400f51:    mov    $0x4025cf,%esi                 
+  0x400f56:    mov    $0x0,%eax                     
+  0x400f5b:    callq  0x400bf0 <__isoc99_sscanf@plt>
+```
+And by displaying the string stored at `0x4025cf`, we know the input phase should be two
+decimal numbers
+```
+  (gdb) x/s 0x4025cf
+  0x4025cf:       "%d %d"
+```
+In phase\_3, there is a specific address jumping instrction of `jumpq`, which will jump
+directly to instruction at address $ (*0x402470) +  8 * rax $
+```
+  0x400f75:    jmpq   *0x402470(,%rax,8)
+```
+And when we look at the value stored at `0x402470`, it turns out to be $0x400f7c$, which
+is the next instruction of `jumpq`
+```
+  (gdb) x/gx 0x402470
+  0x402470:       0x0000000000400f7c
 ```
