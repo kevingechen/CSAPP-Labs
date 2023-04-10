@@ -197,13 +197,27 @@ decimal numbers
   0x4025cf:       "%d %d"
 ```
 In phase\_3, there is a specific address jumping instrction of `jumpq`, which will jump
-directly to instruction at address $ (*0x402470) +  8 * rax $
+directly to instruction at address `(\*0x402470) +  8 \* rax`
 ```
-  0x400f75:    jmpq   *0x402470(,%rax,8)
+  0x400f75:    jmpq   *0x402470(,%rax,8)*
 ```
-And when we look at the value stored at `0x402470`, it turns out to be $0x400f7c$, which
+And when we look at the value stored at `0x402470`, it turns out to be `0x400f7c`, which
 is the next instruction of `jumpq`
 ```
   (gdb) x/gx 0x402470
   0x402470:       0x0000000000400f7c
 ```
+Therefore, the remaining part of phase\_3 can be interpreted as a switch branch based
+on the first input number. If the second number matches the mapping relationship, we
+can pass phase\_3.
+```
+0 207
+1 707
+2 256
+3 389
+4 206 
+5 682
+6 327
+7 311
+```
+We can append any pair of the map into `solution.txt`
