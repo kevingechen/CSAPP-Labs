@@ -164,14 +164,14 @@ and get the assembly code
   0x400f81:    jmp    0x400fbe <phase_3+0x7b>         #  This part can be intepreted as the following
   0x400f83:    mov    $0x2c3,%eax                     #  pseudo code:
   0x400f88:    jmp    0x400fbe <phase_3+0x7b>         #    eax = switch (first input number) {
-  0x400f8a:    mov    $0x100,%eax                     #      0 => 0xcf 
-  0x400f8f:    jmp    0x400fbe <phase_3+0x7b>         #      1 => 0x2c3
-  0x400f91:    mov    $0x185,%eax                     #      2 => 0x100
-  0x400f96:    jmp    0x400fbe <phase_3+0x7b>         #      3 => 0x185
-  0x400f98:    mov    $0xce,%eax                      #      4 => 0xce
-  0x400f9d:    jmp    0x400fbe <phase_3+0x7b>         #      5 => 0x2aa
-  0x400f9f:    mov    $0x2aa,%eax                     #      6 => 0x147
-  0x400fa4:    jmp    0x400fbe <phase_3+0x7b>         #      7 => 0x137
+  0x400f8a:    mov    $0x100,%eax                     #      0 => 0xcf  
+  0x400f8f:    jmp    0x400fbe <phase_3+0x7b>         #      1 => 0x137
+  0x400f91:    mov    $0x185,%eax                     #      2 => 0x2c3
+  0x400f96:    jmp    0x400fbe <phase_3+0x7b>         #      3 => 0x100
+  0x400f98:    mov    $0xce,%eax                      #      4 => 0x185
+  0x400f9d:    jmp    0x400fbe <phase_3+0x7b>         #      5 => 0xce
+  0x400f9f:    mov    $0x2aa,%eax                     #      6 => 0x2aa
+  0x400fa4:    jmp    0x400fbe <phase_3+0x7b>         #      7 => 0x147
   0x400fa6:    mov    $0x147,%eax                     #    }                                      
   0x400fab:    jmp    0x400fbe <phase_3+0x7b>         #                                      
   0x400fad:    callq  0x40143a <explode_bomb>         # 
@@ -212,12 +212,20 @@ on the first input number. If the second number matches the mapping relationship
 can pass phase\_3.
 ```
 0 207
-1 707
-2 256
-3 389
-4 206 
-5 682
-6 327
-7 311
+1 311
+2 707
+3 256
+4 389
+5 206 
+6 682
+7 327
 ```
-We can append any pair of the map into `solution.txt`
+We can append any pair of the map into `solution.txt`.
+
+# Phase 4
+Let's continue to crack `phase_4`
+```
+  (gdb) b phase_4
+  (gdb) r solution.txt
+  (gdb) layout asm
+```
