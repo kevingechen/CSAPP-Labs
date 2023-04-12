@@ -229,3 +229,28 @@ Let's continue to crack `phase_4`
   (gdb) r solution.txt
   (gdb) layout asm
 ```
+
+```
+  0x40100c:	   sub    $0x18,%rsp                     # push down stack 24 bytes
+  0x401010:	   lea    0xc(%rsp),%rcx
+  0x401015:	   lea    0x8(%rsp),%rdx
+  0x40101a:	   mov    $0x4025cf,%esi
+  0x40101f:	   mov    $0x0,%eax
+  0x401024:	   callq  0x400bf0 <__isoc99_sscanf@plt>   # call sscanf to parse input phase
+  0x401029:	   cmp    $0x2,%eax
+  0x40102c:	   jne    0x401035 <phase_4+0x29>
+  0x40102e:	   cmpl   $0xe,0x8(%rsp)
+  0x401033:	   jbe    0x40103a <phase_4+0x2e>
+  0x401035:	   callq  0x40143a <explode_bomb>
+  0x40103a:	   mov    $0xe,%edx
+  0x40103f:	   mov    $0x0,%esi
+  0x401044:	   mov    0x8(%rsp),%edi
+  0x401048:	   callq  0x400fce <func4>
+  0x40104d:	   test   %eax,%eax
+  0x40104f:	   jne    0x401058 <phase_4+0x4c>
+  0x401051:	   cmpl   $0x0,0xc(%rsp)
+  0x401056:	   je     0x40105d <phase_4+0x51>
+  0x401058:	   callq  0x40143a <explode_bomb>
+  0x40105d:	   add    $0x18,%rsp
+  0x401061:	   retq   
+```
