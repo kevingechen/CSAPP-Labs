@@ -254,3 +254,27 @@ Let's continue to crack `phase_4`
   0x40105d:	   add    $0x18,%rsp
   0x401061:	   retq   
 ```
+We see that `phase\_4` also takes 2 numbers, and it jumps to `func4` if the first number is less than 14.
+```
+  0x400fce:	   sub    $0x8,%rsp
+  0x400fd2:	   mov    %edx,%eax
+  0x400fd4:	   sub    %esi,%eax
+  0x400fd6:	   mov    %eax,%ecx
+  0x400fd8:	   shr    $0x1f,%ecx
+  0x400fdb:	   add    %ecx,%eax
+  0x400fdd:	   sar    %eax
+  0x400fdf:	   lea    (%rax,%rsi,1),%ecx
+  0x400fe2:	   cmp    %edi,%ecx
+  0x400fe4:	   jle    400ff2 <func4+0x24>
+  0x400fe6:	   lea    -0x1(%rcx),%edx
+  0x400fe9:	   callq  400fce <func4>
+  0x400fee:	   add    %eax,%eax
+  0x400ff0:	   jmp    401007 <func4+0x39>
+  0x400ff2:	   mov    $0x0,%eax
+  0x400ff7:	   cmp    %edi,%ecx
+  0x400ff9:	   jge    401007 <func4+0x39>
+  0x400ffb:	   lea    0x1(%rcx),%esi
+  0x400ffe:	   callq  400fce <func4>
+  0x401003:	   lea    0x1(%rax,%rax,1),%eax
+  0x401007:	   add    $0x8,%rsp
+```
