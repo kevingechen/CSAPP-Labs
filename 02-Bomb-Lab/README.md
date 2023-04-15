@@ -244,11 +244,11 @@ Let's continue to crack `phase_4`
   0x401035:	   callq  0x40143a <explode_bomb>
   0x40103a:	   mov    $0xe,%edx                        # edx = 14
   0x40103f:	   mov    $0x0,%esi                        # esi = 0
-  0x401044:	   mov    0x8(%rsp),%edi
+  0x401044:	   mov    0x8(%rsp),%edi                   # move the first number to edi
   0x401048:	   callq  0x400fce <func4>                 # call func4
   0x40104d:	   test   %eax,%eax
   0x40104f:	   jne    0x401058 <phase_4+0x4c>
-  0x401051:	   cmpl   $0x0,0xc(%rsp)
+  0x401051:	   cmpl   $0x0,0xc(%rsp)                  # compare the second number with 0
   0x401056:	   je     0x40105d <phase_4+0x51>
   0x401058:	   callq  0x40143a <explode_bomb>
   0x40105d:	   add    $0x18,%rsp
@@ -256,25 +256,25 @@ Let's continue to crack `phase_4`
 ```
 We see that `phase\_4` also takes 2 numbers, and it jumps to `func4` if the first number is less than 14.
 ```
-  0x400fce:	   sub    $0x8,%rsp
-  0x400fd2:	   mov    %edx,%eax
-  0x400fd4:	   sub    %esi,%eax
-  0x400fd6:	   mov    %eax,%ecx
-  0x400fd8:	   shr    $0x1f,%ecx
-  0x400fdb:	   add    %ecx,%eax
-  0x400fdd:	   sar    %eax
-  0x400fdf:	   lea    (%rax,%rsi,1),%ecx
-  0x400fe2:	   cmp    %edi,%ecx
-  0x400fe4:	   jle    400ff2 <func4+0x24>
-  0x400fe6:	   lea    -0x1(%rcx),%edx
-  0x400fe9:	   callq  400fce <func4>
-  0x400fee:	   add    %eax,%eax
-  0x400ff0:	   jmp    401007 <func4+0x39>
-  0x400ff2:	   mov    $0x0,%eax
-  0x400ff7:	   cmp    %edi,%ecx
-  0x400ff9:	   jge    401007 <func4+0x39>
-  0x400ffb:	   lea    0x1(%rcx),%esi
-  0x400ffe:	   callq  400fce <func4>
-  0x401003:	   lea    0x1(%rax,%rax,1),%eax
-  0x401007:	   add    $0x8,%rsp
+  0x400fce:	   sub    $0x8,%rsp                       # push down stack 8 bytes
+  0x400fd2:	   mov    %edx,%eax                       # eax = edx (14)
+  0x400fd4:	   sub    %esi,%eax                       # eax -= esi (14 - 0)
+  0x400fd6:	   mov    %eax,%ecx                       # ecx = eax
+  0x400fd8:	   shr    $0x1f,%ecx                      # ecx >>= 31 (get sign bit 0)
+  0x400fdb:	   add    %ecx,%eax                       # eax += ecx (14)
+  0x400fdd:	   sar    %eax                            # eax = eax / 2 (7 = 14 / 2)
+  0x400fdf:	   lea    (%rax,%rsi,1),%ecx              # ecx = rsi + rax (7)
+  0x400fe2:	   cmp    %edi,%ecx                       # if edi == ecx
+  0x400fe4:	   jle    0x400ff2 <func4+0x24>           # jump 0x400ff2 if edi >= ecx
+  0x400fe6:	   lea    -0x1(%rcx),%edx                 # edx = rcx - 1 (6)
+  0x400fe9:	   callq  0x400fce <func4>                # call self func4
+  0x400fee:	   add    %eax,%eax                       # eax = 2 * eax
+  0x400ff0:	   jmp    0x401007 <func4+0x39>           # return
+  0x400ff2:	   mov    $0x0,%eax                       # eax = 0
+  0x400ff7:	   cmp    %edi,%ecx                       # if edi == ecx
+  0x400ff9:	   jge    0x401007 <func4+0x39>           # return if edi >= ecx (n1 >= ecx)
+  0x400ffb:	   lea    0x1(%rcx),%esi                  # esi = rcx + 1
+  0x400ffe:	   callq  0x400fce <func4>                # call self func4
+  0x401003:	   lea    0x1(%rax,%rax,1),%eax           # eax = 2 * rax + 1
+  0x401007:	   add    $0x8,%rsp                       # pop up stack 8 bytes
 ```
