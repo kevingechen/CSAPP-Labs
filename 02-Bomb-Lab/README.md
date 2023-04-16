@@ -240,7 +240,7 @@ Let's continue to crack `phase_4`
   0x401029:	   cmp    $0x2,%eax                        # check if input size equals 2
   0x40102c:	   jne    0x401035 <phase_4+0x29>          # BOMB if not
   0x40102e:	   cmpl   $0xe,0x8(%rsp)                   # compare the first input number with 14
-  0x401033:	   jbe    0x40103a <phase_4+0x2e>          # go to 0x40103a if 14 <= n1
+  0x401033:	   jbe    0x40103a <phase_4+0x2e>          # go to 0x40103a if n1 <= 14
   0x401035:	   callq  0x40143a <explode_bomb>
   0x40103a:	   mov    $0xe,%edx                        # edx = 14
   0x40103f:	   mov    $0x0,%esi                        # esi = 0
@@ -265,7 +265,7 @@ We see that `phase\_4` also takes 2 numbers, and it jumps to `func4` if the firs
   0x400fdd:	   sar    %eax                            # eax = eax / 2 (7 = 14 / 2)
   0x400fdf:	   lea    (%rax,%rsi,1),%ecx              # ecx = rsi + rax (7)
   0x400fe2:	   cmp    %edi,%ecx                       # if edi == ecx
-  0x400fe4:	   jle    0x400ff2 <func4+0x24>           # jump 0x400ff2 if edi >= ecx
+  0x400fe4:	   jle    0x400ff2 <func4+0x24>           # jump 0x400ff2 if ecx <= edi (7 <= n1)
   0x400fe6:	   lea    -0x1(%rcx),%edx                 # edx = rcx - 1 (6)
   0x400fe9:	   callq  0x400fce <func4>                # call self func4
   0x400fee:	   add    %eax,%eax                       # eax = 2 * eax
@@ -277,4 +277,25 @@ We see that `phase\_4` also takes 2 numbers, and it jumps to `func4` if the firs
   0x400ffe:	   callq  0x400fce <func4>                # call self func4
   0x401003:	   lea    0x1(%rax,%rax,1),%eax           # eax = 2 * rax + 1
   0x401007:	   add    $0x8,%rsp                       # pop up stack 8 bytes
+```
+From the assembly code of `func4`, there is part of recursion, and we can infer its logic as the
+following python code:
+```python
+func4(num, left, right):
+    mid = (left + right) / 2
+    if num == mid:
+        return 0
+    elif num > mid:
+        return 2 * func4(num, mid + 1, right) + 1
+    else:
+        return 2 * func4(num, left, mid - 1)
+```
+The `phase\_4` calls a `func4(num = n1, left = 0, right = 14)`, and assert the return value by 0.
+If the result of `func4` is non-zero, it will **BOMB**. Then we will assure `n2 == 0`. Hence, we
+get n1 should be an integer between 0 and 14, which also evaluate `func4` to be 0. So `phase_4`
+should be one of the following pair:
+```
+7 0
+1 0
+0 0
 ```
