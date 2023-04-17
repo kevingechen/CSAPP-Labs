@@ -281,7 +281,7 @@ We see that `phase\_4` also takes 2 numbers, and it jumps to `func4` if the firs
 From the assembly code of `func4`, there is part of recursion, and we can infer its logic as the
 following python code:
 ```python
-func4(num, left, right):
+def func4(num, left, right):
     mid = (left + right) / 2
     if num == mid:
         return 0
@@ -296,6 +296,7 @@ get n1 should be an integer between 0 and 14, which also evaluate `func4` to be 
 should be one of the following pair:
 ```
 7 0
+3 0
 1 0
 0 0
 ```
