@@ -147,48 +147,48 @@ Taking the phase\_2 result, we can quickly break at phase\_3 and run directly he
 and get the assembly code
 
 ```
-  0x400f43:    sub    $0x18,%rsp                      # push down stack 24 bytes
-  0x400f47:    lea    0xc(%rsp),%rcx                  # rcx = stack pointer + 12
-  0x400f4c:    lea    0x8(%rsp),%rdx                  # rdx = stack pointer + 8
-  0x400f51:    mov    $0x4025cf,%esi                  # esi = 0x4025cf ("%d %d")
-  0x400f56:    mov    $0x0,%eax                       # eax = 0
-  0x400f5b:    callq  0x400bf0 <__isoc99_sscanf@plt>  # call sscanf to parse input phase
-  0x400f60:    cmp    $0x1,%eax                       # check if size > 1
-  0x400f63:    jg     0x400f6a <phase_3+0x27>         # jump to instruction 0x400f6a if size > 1
-  0x400f65:    callq  0x40143a <explode_bomb>
-  0x400f6a:    cmpl   $0x7,0x8(%rsp)                  # compare the first input number with 7
-  0x400f6f:    ja     0x400fad <phase_3+0x6a>         # first number <= 7, then go to instruction 0x400fad
-  0x400f71:    mov    0x8(%rsp),%eax                  # put the first input number to eax
-  0x400f75:    jmpq   *0x402470(,%rax,8)              # jump to instrction at (8 * rax + *0x402470)
-  0x400f7c:    mov    $0xcf,%eax                      #################################################
-  0x400f81:    jmp    0x400fbe <phase_3+0x7b>         #  This part can be intepreted as the following
-  0x400f83:    mov    $0x2c3,%eax                     #  pseudo code:
-  0x400f88:    jmp    0x400fbe <phase_3+0x7b>         #    eax = switch (first input number) {
-  0x400f8a:    mov    $0x100,%eax                     #      0 => 0xcf  
-  0x400f8f:    jmp    0x400fbe <phase_3+0x7b>         #      1 => 0x137
-  0x400f91:    mov    $0x185,%eax                     #      2 => 0x2c3
-  0x400f96:    jmp    0x400fbe <phase_3+0x7b>         #      3 => 0x100
-  0x400f98:    mov    $0xce,%eax                      #      4 => 0x185
-  0x400f9d:    jmp    0x400fbe <phase_3+0x7b>         #      5 => 0xce
-  0x400f9f:    mov    $0x2aa,%eax                     #      6 => 0x2aa
-  0x400fa4:    jmp    0x400fbe <phase_3+0x7b>         #      7 => 0x147
-  0x400fa6:    mov    $0x147,%eax                     #    }                                      
-  0x400fab:    jmp    0x400fbe <phase_3+0x7b>         #                                      
-  0x400fad:    callq  0x40143a <explode_bomb>         # 
-  0x400fb2:    mov    $0x0,%eax                       #
-  0x400fb7:    jmp    0x400fbe <phase_3+0x7b>         #
-  0x400fb9:    mov    $0x137,%eax                     ################################################# 
-  0x400fbe:    cmp    0xc(%rsp),%eax                  # compare the second number with eax
-  0x400fc2:    je     0x400fc9 <phase_3+0x86>         # PASS if the second number == eax
-  0x400fc4:    callq  0x40143a <explode_bomb>         # BOMB otherwise
-  0x400fc9:    add    $0x18,%rsp                      # pop up the stack 24 bytes
-  0x400fcd:    retq
+  0x400f43:   sub    $0x18,%rsp                      # push down stack 24 bytes
+  0x400f47:   lea    0xc(%rsp),%rcx                  # rcx = stack pointer + 12
+  0x400f4c:   lea    0x8(%rsp),%rdx                  # rdx = stack pointer + 8
+  0x400f51:   mov    $0x4025cf,%esi                  # esi = 0x4025cf ("%d %d")
+  0x400f56:   mov    $0x0,%eax                       # eax = 0
+  0x400f5b:   callq  0x400bf0 <__isoc99_sscanf@plt>  # call sscanf to parse input phase
+  0x400f60:   cmp    $0x1,%eax                       # check if size > 1
+  0x400f63:   jg     0x400f6a <phase_3+0x27>         # jump to instruction 0x400f6a if size > 1
+  0x400f65:   callq  0x40143a <explode_bomb>
+  0x400f6a:   cmpl   $0x7,0x8(%rsp)                  # compare the first input number with 7
+  0x400f6f:   ja     0x400fad <phase_3+0x6a>         # first number <= 7, then go to instruction 0x400fad
+  0x400f71:   mov    0x8(%rsp),%eax                  # put the first input number to eax
+  0x400f75:   jmpq   *0x402470(,%rax,8)              # jump to instrction at (8 * rax + *0x402470)
+  0x400f7c:   mov    $0xcf,%eax                      #################################################
+  0x400f81:   jmp    0x400fbe <phase_3+0x7b>         #  This part can be intepreted as the following
+  0x400f83:   mov    $0x2c3,%eax                     #  pseudo code:
+  0x400f88:   jmp    0x400fbe <phase_3+0x7b>         #    eax = switch (first input number) {
+  0x400f8a:   mov    $0x100,%eax                     #      0 => 0xcf  
+  0x400f8f:   jmp    0x400fbe <phase_3+0x7b>         #      1 => 0x137
+  0x400f91:   mov    $0x185,%eax                     #      2 => 0x2c3
+  0x400f96:   jmp    0x400fbe <phase_3+0x7b>         #      3 => 0x100
+  0x400f98:   mov    $0xce,%eax                      #      4 => 0x185
+  0x400f9d:   jmp    0x400fbe <phase_3+0x7b>         #      5 => 0xce
+  0x400f9f:   mov    $0x2aa,%eax                     #      6 => 0x2aa
+  0x400fa4:   jmp    0x400fbe <phase_3+0x7b>         #      7 => 0x147
+  0x400fa6:   mov    $0x147,%eax                     #    }                                      
+  0x400fab:   jmp    0x400fbe <phase_3+0x7b>         #                                      
+  0x400fad:   callq  0x40143a <explode_bomb>         # 
+  0x400fb2:   mov    $0x0,%eax                       #
+  0x400fb7:   jmp    0x400fbe <phase_3+0x7b>         #
+  0x400fb9:   mov    $0x137,%eax                     ################################################# 
+  0x400fbe:   cmp    0xc(%rsp),%eax                  # compare the second number with eax
+  0x400fc2:   je     0x400fc9 <phase_3+0x86>         # PASS if the second number == eax
+  0x400fc4:   callq  0x40143a <explode_bomb>         # BOMB otherwise
+  0x400fc9:   add    $0x18,%rsp                      # pop up the stack 24 bytes
+  0x400fcd:   retq
 ```
 For the following part, we know phase\_3 calls sscanf to load input phase by format
 ```
-  0x400f51:    mov    $0x4025cf,%esi                 
-  0x400f56:    mov    $0x0,%eax                     
-  0x400f5b:    callq  0x400bf0 <__isoc99_sscanf@plt>
+  0x400f51:   mov    $0x4025cf,%esi                 
+  0x400f56:   mov    $0x0,%eax                     
+  0x400f5b:   callq  0x400bf0 <__isoc99_sscanf@plt>
 ```
 And by displaying the string stored at `0x4025cf`, we know the input phase should be two
 decimal numbers
@@ -231,52 +231,52 @@ Let's continue to crack `phase_4`
 ```
 
 ```
-  0x40100c:	   sub    $0x18,%rsp                       # push down stack 24 bytes
-  0x401010:	   lea    0xc(%rsp),%rcx
-  0x401015:	   lea    0x8(%rsp),%rdx
-  0x40101a:	   mov    $0x4025cf,%esi                   # string format ("%d %d")
-  0x40101f:	   mov    $0x0,%eax
-  0x401024:	   callq  0x400bf0 <__isoc99_sscanf@plt>   # call sscanf to parse input phase
-  0x401029:	   cmp    $0x2,%eax                        # check if input size equals 2
-  0x40102c:	   jne    0x401035 <phase_4+0x29>          # BOMB if not
-  0x40102e:	   cmpl   $0xe,0x8(%rsp)                   # compare the first input number with 14
-  0x401033:	   jbe    0x40103a <phase_4+0x2e>          # go to 0x40103a if n1 <= 14
-  0x401035:	   callq  0x40143a <explode_bomb>
-  0x40103a:	   mov    $0xe,%edx                        # edx = 14
-  0x40103f:	   mov    $0x0,%esi                        # esi = 0
-  0x401044:	   mov    0x8(%rsp),%edi                   # move the first number to edi
-  0x401048:	   callq  0x400fce <func4>                 # call func4
-  0x40104d:	   test   %eax,%eax
-  0x40104f:	   jne    0x401058 <phase_4+0x4c>
-  0x401051:	   cmpl   $0x0,0xc(%rsp)                  # compare the second number with 0
-  0x401056:	   je     0x40105d <phase_4+0x51>
-  0x401058:	   callq  0x40143a <explode_bomb>
-  0x40105d:	   add    $0x18,%rsp
-  0x401061:	   retq   
+  0x40100c:   sub    $0x18,%rsp                       # push down stack 24 bytes
+  0x401010:   lea    0xc(%rsp),%rcx
+  0x401015:   lea    0x8(%rsp),%rdx
+  0x40101a:   mov    $0x4025cf,%esi                   # string format ("%d %d")
+  0x40101f:   mov    $0x0,%eax
+  0x401024:   callq  0x400bf0 <__isoc99_sscanf@plt>   # call sscanf to parse input phase
+  0x401029:   cmp    $0x2,%eax                        # check if input size equals 2
+  0x40102c:   jne    0x401035 <phase_4+0x29>          # BOMB if not
+  0x40102e:   cmpl   $0xe,0x8(%rsp)                   # compare the first input number with 14
+  0x401033:   jbe    0x40103a <phase_4+0x2e>          # go to 0x40103a if n1 <= 14
+  0x401035:   callq  0x40143a <explode_bomb>
+  0x40103a:   mov    $0xe,%edx                        # edx = 14
+  0x40103f:   mov    $0x0,%esi                        # esi = 0
+  0x401044:   mov    0x8(%rsp),%edi                   # move the first number to edi
+  0x401048:   callq  0x400fce <func4>                 # call func4
+  0x40104d:   test   %eax,%eax
+  0x40104f:   jne    0x401058 <phase_4+0x4c>
+  0x401051:   cmpl   $0x0,0xc(%rsp)                  # compare the second number with 0
+  0x401056:   je     0x40105d <phase_4+0x51>
+  0x401058:   callq  0x40143a <explode_bomb>
+  0x40105d:   add    $0x18,%rsp
+  0x401061:   retq   
 ```
-We see that `phase\_4` also takes 2 numbers, and it jumps to `func4` if the first number is less than 14.
+We see that `phase_4` also takes 2 numbers, and it jumps to `func4` if the first number is less than 14.
 ```
-  0x400fce:	   sub    $0x8,%rsp                       # push down stack 8 bytes
-  0x400fd2:	   mov    %edx,%eax                       # eax = edx (14)
-  0x400fd4:	   sub    %esi,%eax                       # eax -= esi (14 - 0)
-  0x400fd6:	   mov    %eax,%ecx                       # ecx = eax
-  0x400fd8:	   shr    $0x1f,%ecx                      # ecx >>= 31 (get sign bit 0)
-  0x400fdb:	   add    %ecx,%eax                       # eax += ecx (14)
-  0x400fdd:	   sar    %eax                            # eax = eax / 2 (7 = 14 / 2)
-  0x400fdf:	   lea    (%rax,%rsi,1),%ecx              # ecx = rsi + rax (7)
-  0x400fe2:	   cmp    %edi,%ecx                       # if edi == ecx
-  0x400fe4:	   jle    0x400ff2 <func4+0x24>           # jump 0x400ff2 if ecx <= edi (7 <= n1)
-  0x400fe6:	   lea    -0x1(%rcx),%edx                 # edx = rcx - 1 (6)
-  0x400fe9:	   callq  0x400fce <func4>                # call self func4
-  0x400fee:	   add    %eax,%eax                       # eax = 2 * eax
-  0x400ff0:	   jmp    0x401007 <func4+0x39>           # return
-  0x400ff2:	   mov    $0x0,%eax                       # eax = 0
-  0x400ff7:	   cmp    %edi,%ecx                       # if edi == ecx
-  0x400ff9:	   jge    0x401007 <func4+0x39>           # return if edi >= ecx (n1 >= ecx)
-  0x400ffb:	   lea    0x1(%rcx),%esi                  # esi = rcx + 1
-  0x400ffe:	   callq  0x400fce <func4>                # call self func4
-  0x401003:	   lea    0x1(%rax,%rax,1),%eax           # eax = 2 * rax + 1
-  0x401007:	   add    $0x8,%rsp                       # pop up stack 8 bytes
+  0x400fce:	  sub    $0x8,%rsp                       # push down stack 8 bytes
+  0x400fd2:	  mov    %edx,%eax                       # eax = edx (14)
+  0x400fd4:	  sub    %esi,%eax                       # eax -= esi (14 - 0)
+  0x400fd6:	  mov    %eax,%ecx                       # ecx = eax
+  0x400fd8:	  shr    $0x1f,%ecx                      # ecx >>= 31 (get sign bit 0)
+  0x400fdb:	  add    %ecx,%eax                       # eax += ecx (14)
+  0x400fdd:	  sar    %eax                            # eax = eax / 2 (7 = 14 / 2)
+  0x400fdf:	  lea    (%rax,%rsi,1),%ecx              # ecx = rsi + rax (7)
+  0x400fe2:	  cmp    %edi,%ecx                       # if edi == ecx
+  0x400fe4:	  jle    0x400ff2 <func4+0x24>           # jump 0x400ff2 if ecx <= edi (7 <= n1)
+  0x400fe6:	  lea    -0x1(%rcx),%edx                 # edx = rcx - 1 (6)
+  0x400fe9:	  callq  0x400fce <func4>                # call self func4
+  0x400fee:	  add    %eax,%eax                       # eax = 2 * eax
+  0x400ff0:	  jmp    0x401007 <func4+0x39>           # return
+  0x400ff2:	  mov    $0x0,%eax                       # eax = 0
+  0x400ff7:	  cmp    %edi,%ecx                       # if edi == ecx
+  0x400ff9:	  jge    0x401007 <func4+0x39>           # return if edi >= ecx (n1 >= ecx)
+  0x400ffb:	  lea    0x1(%rcx),%esi                  # esi = rcx + 1
+  0x400ffe:	  callq  0x400fce <func4>                # call self func4
+  0x401003:	  lea    0x1(%rax,%rax,1),%eax           # eax = 2 * rax + 1
+  0x401007:	  add    $0x8,%rsp                       # pop up stack 8 bytes
 ```
 From the assembly code of `func4`, there is part of recursion, and we can infer its logic as the
 following python code:
@@ -290,7 +290,7 @@ def func4(num, left, right):
     else:
         return 2 * func4(num, left, mid - 1)
 ```
-The `phase\_4` calls a `func4(num = n1, left = 0, right = 14)`, and assert the return value by 0.
+The `phase_4` calls a `func4(num = n1, left = 0, right = 14)`, and assert the return value by 0.
 If the result of `func4` is non-zero, it will **BOMB**. Then we will assure `n2 == 0`. Hence, we
 get n1 should be an integer between 0 and 14, which also evaluate `func4` to be 0. So `phase_4`
 should be one of the following pair:
@@ -300,3 +300,63 @@ should be one of the following pair:
 1 0
 0 0
 ```
+Let's append any pair to `solution.txt` and the current state is:
+```
+  unix > cat solution.txt
+      Border relations with Canada have never been better.
+      1 2 4 8 16 32
+      3 256
+      7 0
+```
+
+# Phase 5
+Move on to handle `phase_5`
+```
+  (gdb) b phase_5
+  (gdb) r solution.txt
+  (gdb) layout asm
+```
+Here is the assembly code for `phase_5`
+```
+  0x401062:   push   %rbx                          # 
+  0x401063:   sub    $0x20,%rsp                    # push down the stack 32 bytes
+  0x401067:   mov    %rdi,%rbx
+  0x40106a:   mov    %fs:0x28,%rax
+  0x401071:   
+  0x401073:   mov    %rax,0x18(%rsp)               # move rax to rsp + 24
+  0x401078:   xor    %eax,%eax                     # set eax = 0
+  0x40107a:   callq  0x40131b <string_length>
+  0x40107f:   cmp    $0x6,%eax                     # compare eax (the length of input) with 6
+  0x401082:   je     0x4010d2 <phase_5+0x70>       # go to 0x4010d2 if len(input) == 6
+  0x401084:   callq  0x40143a <explode_bomb>
+  0x401089:   jmp    0x4010d2 <phase_5+0x70>
+  0x40108b:   movzbl (%rbx,%rax,1),%ecx
+  0x40108f:   mov    %cl,(%rsp)
+  0x401092:   mov    (%rsp),%rdx
+  0x401096:   and    $0xf,%edx
+  0x401099:   movzbl 0x4024b0(%rdx),%edx
+  0x4010a0:   mov    %dl,0x10(%rsp,%rax,1)
+  0x4010a4:   add    $0x1,%rax
+  0x4010a8:   cmp    $0x6,%rax
+  0x4010ac:   jne    0x40108b <phase_5+0x29>
+  0x4010ae:   movb   $0x0,0x16(%rsp)
+  0x4010b3:   mov    $0x40245e,%esi
+  0x4010b8:   lea    0x10(%rsp),%rdi
+  0x4010bd:   callq  0x401338 <strings_not_equal>
+  0x4010c2:   test   %eax,%eax
+  0x4010c4:   je     0x4010d9 <phase_5+0x77>
+  0x4010c6:   callq  0x40143a <explode_bomb>
+  0x4010cb:   nopl   0x0(%rax,%rax,1)
+  0x4010d0:   jmp    0x4010d9 <phase_5+0x77>
+  0x4010d2:   mov    $0x0,%eax
+  0x4010d7:   jmp    0x40108b <phase_5+0x29>
+  0x4010d9:   mov    0x18(%rsp),%rax
+  0x4010de:   xor    %fs:0x28,%rax
+  0x4010e5:   
+  0x4010e7:   je     0x4010ee <phase_5+0x8c>
+  0x4010e9:   callq  0x400b30 <__stack_chk_fail@plt>
+  0x4010ee:   add    $0x20,%rsp
+  0x4010f2:   pop    %rbx
+  0x4010f3:   retq   
+```
+
