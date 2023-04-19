@@ -328,12 +328,12 @@ Here is the assembly code for `phase_5`
   0x40107a:   callq  0x40131b <string_length>
   0x40107f:   cmp    $0x6,%eax                     # compare eax (the length of input) with 6
   0x401082:   je     0x4010d2 <phase_5+0x70>       # go to 0x4010d2 if len(input) == 6
-  0x401084:   callq  0x40143a <explode_bomb>
-  0x401089:   jmp    0x4010d2 <phase_5+0x70>
-  0x40108b:   movzbl (%rbx,%rax,1),%ecx
-  0x40108f:   mov    %cl,(%rsp)
+  0x401084:   callq  0x40143a <explode_bomb>       # BOMB if size not 6
+  0x401089:   jmp    0x4010d2 <phase_5+0x70>       # go to 0x4010d2
+  0x40108b:   movzbl (%rbx,%rax,1),%ecx            # ecx = fisrt char from input
+  0x40108f:   mov    %cl,(%rsp)                    #
   0x401092:   mov    (%rsp),%rdx
-  0x401096:   and    $0xf,%edx
+  0x401096:   and    $0xf,%edx                     # edx = 15
   0x401099:   movzbl 0x4024b0(%rdx),%edx
   0x4010a0:   mov    %dl,0x10(%rsp,%rax,1)
   0x4010a4:   add    $0x1,%rax
