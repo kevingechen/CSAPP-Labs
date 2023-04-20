@@ -330,33 +330,55 @@ Here is the assembly code for `phase_5`
   0x401082:   je     0x4010d2 <phase_5+0x70>       # go to 0x4010d2 if len(input) == 6
   0x401084:   callq  0x40143a <explode_bomb>       # BOMB if size not 6
   0x401089:   jmp    0x4010d2 <phase_5+0x70>       # go to 0x4010d2
-  0x40108b:   movzbl (%rbx,%rax,1),%ecx            # ecx = fisrt char from input
+  0x40108b:   movzbl (%rbx,%rax,1),%ecx            # ecx = (%rax)-th char from input
   0x40108f:   mov    %cl,(%rsp)                    #
   0x401092:   mov    (%rsp),%rdx
-  0x401096:   and    $0xf,%edx                     # edx = 15
-  0x401099:   movzbl 0x4024b0(%rdx),%edx
-  0x4010a0:   mov    %dl,0x10(%rsp,%rax,1)
-  0x4010a4:   add    $0x1,%rax
-  0x4010a8:   cmp    $0x6,%rax
-  0x4010ac:   jne    0x40108b <phase_5+0x29>
-  0x4010ae:   movb   $0x0,0x16(%rsp)
-  0x4010b3:   mov    $0x40245e,%esi
-  0x4010b8:   lea    0x10(%rsp),%rdi
-  0x4010bd:   callq  0x401338 <strings_not_equal>
-  0x4010c2:   test   %eax,%eax
-  0x4010c4:   je     0x4010d9 <phase_5+0x77>
-  0x4010c6:   callq  0x40143a <explode_bomb>
-  0x4010cb:   nopl   0x0(%rax,%rax,1)
-  0x4010d0:   jmp    0x4010d9 <phase_5+0x77>
-  0x4010d2:   mov    $0x0,%eax
-  0x4010d7:   jmp    0x40108b <phase_5+0x29>
-  0x4010d9:   mov    0x18(%rsp),%rax
-  0x4010de:   xor    %fs:0x28,%rax
-  0x4010e5:   
+  0x401096:   and    $0xf,%edx                     # edx = eax & 0b1111 = eax % 15
+  0x401099:   movzbl 0x4024b0(%rdx),%edx           # move the (%rdx)-th byte to edx
+  0x4010a0:   mov    %dl,0x10(%rsp,%rax,1)         #
+  0x4010a4:   add    $0x1,%rax                     #
+  0x4010a8:   cmp    $0x6,%rax                     #
+  0x4010ac:   jne    0x40108b <phase_5+0x29>       #
+  0x4010ae:   movb   $0x0,0x16(%rsp)               #
+  0x4010b3:   mov    $0x40245e,%esi                #
+  0x4010b8:   lea    0x10(%rsp),%rdi               #
+  0x4010bd:   callq  0x401338 <strings_not_equal>  #
+  0x4010c2:   test   %eax,%eax                     #
+  0x4010c4:   je     0x4010d9 <phase_5+0x77>       #
+  0x4010c6:   callq  0x40143a <explode_bomb>       #
+  0x4010cb:   nopl   0x0(%rax,%rax,1)              #
+  0x4010d0:   jmp    0x4010d9 <phase_5+0x77>       #
+  0x4010d2:   mov    $0x0,%eax                     #
+  0x4010d7:   jmp    0x40108b <phase_5+0x29>       #####################################
+  0x4010d9:   mov    0x18(%rsp),%rax               #
+  0x4010de:   xor    %fs:0x28,%rax                 #
+  0x4010e5:           
   0x4010e7:   je     0x4010ee <phase_5+0x8c>
   0x4010e9:   callq  0x400b30 <__stack_chk_fail@plt>
   0x4010ee:   add    $0x20,%rsp
   0x4010f2:   pop    %rbx
   0x4010f3:   retq   
 ```
-
+In `phase_5` there are two key strings to help us, shown as the following
+```
+(gdb) x/s 0x4024b0
+0x4024b0 <array.3449>:  "maduiersnfotvbylSo you think you can stop the bomb with ctrl-c, do you?"
+```
+```
+(gdb) x/s 0x40245e
+0x40245e:       "flyers"
+```
+The string stored at `0x4024b0` serves as a dictionary, while the other `0x40245e` is the target
+to compare after a translation. The main logic in `phase_5` is to translate the input string to
+another string by looking up the dictionary, with index obtained by the lowest 4-bit value from
+the ascii code of each input character. We therefore indicate the following restrict on `phase_5`
+```
+  len(phase_5) = 6
+  phase_5[0] % 15 = 9
+  phase_5[1] % 15 = 15
+  phase_5[2] % 15 = 14
+  phase_5[3] % 15 = 5
+  phase_5[4] % 15 = 6
+  phase_5[5] % 15 = 7
+```
+One possible pahse_5 is "9?>567"
