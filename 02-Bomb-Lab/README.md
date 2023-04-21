@@ -302,7 +302,7 @@ should be one of the following pair:
 ```
 Let's append any pair to `solution.txt` and the current state is:
 ```
-  unix > cat solution.txt
+  02-Bomb-Lab/src > cat solution.txt
       Border relations with Canada have never been better.
       1 2 4 8 16 32
       3 256
@@ -330,26 +330,26 @@ Here is the assembly code for `phase_5`
   0x401082:   je     0x4010d2 <phase_5+0x70>       # go to 0x4010d2 if len(input) == 6
   0x401084:   callq  0x40143a <explode_bomb>       # BOMB if size not 6
   0x401089:   jmp    0x4010d2 <phase_5+0x70>       # go to 0x4010d2
-  0x40108b:   movzbl (%rbx,%rax,1),%ecx            # ecx = (%rax)-th char from input
+  0x40108b:   movzbl (%rbx,%rax,1),%ecx            # ecx = (%rax)-th byte from input
   0x40108f:   mov    %cl,(%rsp)                    #
-  0x401092:   mov    (%rsp),%rdx
-  0x401096:   and    $0xf,%edx                     # edx = eax & 0b1111 = eax % 15
+  0x401092:   mov    (%rsp),%rdx                   # rdx = ecx
+  0x401096:   and    $0xf,%edx                     # edx = edx & 0b1111 = edx % 15
   0x401099:   movzbl 0x4024b0(%rdx),%edx           # move the (%rdx)-th byte to edx
-  0x4010a0:   mov    %dl,0x10(%rsp,%rax,1)         #
-  0x4010a4:   add    $0x1,%rax                     #
-  0x4010a8:   cmp    $0x6,%rax                     #
-  0x4010ac:   jne    0x40108b <phase_5+0x29>       #
-  0x4010ae:   movb   $0x0,0x16(%rsp)               #
-  0x4010b3:   mov    $0x40245e,%esi                #
-  0x4010b8:   lea    0x10(%rsp),%rdi               #
+  0x4010a0:   mov    %dl,0x10(%rsp,%rax,1)         # (rsp+16)[rax] = edx
+  0x4010a4:   add    $0x1,%rax                     # rax += 1
+  0x4010a8:   cmp    $0x6,%rax                     # if rax == 6
+  0x4010ac:   jne    0x40108b <phase_5+0x29>       # goto 0x4
+  0x4010ae:   movb   $0x0,0x16(%rsp)               # (rsp+22) = '\0' end of string
+  0x4010b3:   mov    $0x40245e,%esi                # esi = target string
+  0x4010b8:   lea    0x10(%rsp),%rdi               # rdi = translated string
   0x4010bd:   callq  0x401338 <strings_not_equal>  #
   0x4010c2:   test   %eax,%eax                     #
-  0x4010c4:   je     0x4010d9 <phase_5+0x77>       #
+  0x4010c4:   je     0x4010d9 <phase_5+0x77>       # if target string == translated string return
   0x4010c6:   callq  0x40143a <explode_bomb>       #
   0x4010cb:   nopl   0x0(%rax,%rax,1)              #
   0x4010d0:   jmp    0x4010d9 <phase_5+0x77>       #
-  0x4010d2:   mov    $0x0,%eax                     #
-  0x4010d7:   jmp    0x40108b <phase_5+0x29>       #####################################
+  0x4010d2:   mov    $0x0,%eax                     # eax = 0
+  0x4010d7:   jmp    0x40108b <phase_5+0x29>       # goto 0x40108b
   0x4010d9:   mov    0x18(%rsp),%rax               #
   0x4010de:   xor    %fs:0x28,%rax                 #
   0x4010e5:           
@@ -371,14 +371,36 @@ In `phase_5` there are two key strings to help us, shown as the following
 The string stored at `0x4024b0` serves as a dictionary, while the other `0x40245e` is the target
 to compare after a translation. The main logic in `phase_5` is to translate the input string to
 another string by looking up the dictionary, with index obtained by the lowest 4-bit value from
-the ascii code of each input character. We therefore indicate the following restrict on `phase_5`
+the ascii code of each input character. The pseudo python code can be:
+```python
+def phase_5(s):
+    if len(s) != 6:
+        BOMB
+    dictionary = "maduiersnfotvbyl"
+    translated = ""
+    for i in range(6):
+        translated += dictionary[ord(s[i]) % 15]
+    if translated != "flyers":
+        BOMB
+    return
+```
+We therefore indicate the following requirement on `phase_5`
 ```
   len(phase_5) = 6
-  phase_5[0] % 15 = 9
-  phase_5[1] % 15 = 15
-  phase_5[2] % 15 = 14
-  phase_5[3] % 15 = 5
-  phase_5[4] % 15 = 6
-  phase_5[5] % 15 = 7
+  uint8 phase_5[0] % 15 = 9
+  uint8 phase_5[1] % 15 = 15
+  uint8 phase_5[2] % 15 = 14
+  uint8 phase_5[3] % 15 = 5
+  uint8 phase_5[4] % 15 = 6
+  uint8 phase_5[5] % 15 = 7
 ```
-One possible pahse_5 is "9?>567"
+One possible `phase_5` is "9?>567"
+Let's put it to the end of `solution.txt` and now:
+```
+  02-Bomb-Lab/src > cat solution.txt
+      Border relations with Canada have never been better.
+      1 2 4 8 16 32
+      3 256
+      7 0
+      9?>567
+```
