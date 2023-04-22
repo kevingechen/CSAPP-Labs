@@ -404,3 +404,155 @@ Let's put it to the end of `solution.txt` and now:
       7 0
       9?>567
 ```
+
+# Phase 6
+One last mile!
+```
+  (gdb) b phase_6
+  (gdb) r solution.txt
+  (gdb) layout asm
+```
+```
+  0x4010f4:   push   %r14
+  0x4010f6:   push   %r13
+  0x4010f8:   push   %r12
+  0x4010fa:   push   %rbp
+  0x4010fb:   push   %rbx
+  0x4010fc:   sub    $0x50,%rsp                 # push down stack 80 bytes
+  0x401100:   mov    %rsp,%r13
+  0x401103:   mov    %rsp,%rsi
+  0x401106:   callq  40145c <read_six_numbers>  # read six numbers from input
+  0x40110b:   mov    %rsp,%r14                  # r14 = rsp
+  0x40110e:   mov    $0x0,%r12d                 ##############################
+  0x401114:   mov    %r13,%rbp                  #
+  0x401117:   mov    0x0(%r13),%eax             # The pseudo of this segment
+  0x40111b:   sub    $0x1,%eax                  # is to validate each input   
+  0x40111e:   cmp    $0x5,%eax                  # number within the range [1,6],
+  0x401121:   jbe    401128 <phase_6+0x34>      # and no duplicated number.
+  0x401123:   callq  40143a <explode_bomb>      # So the phase_6 should be a  
+  0x401128:   add    $0x1,%r12d                 # permutation of {1,2,3,4,5,6}
+  0x40112c:   cmp    $0x6,%r12d                 #   
+  0x401130:   je     401153 <phase_6+0x5f>      #   def valid_num_range(nums):
+  0x401132:   mov    %r12d,%ebx                 #       for i in range(6):
+  0x401135:   movslq %ebx,%rax                  #           num = nums[i]             
+  0x401138:   mov    (%rsp,%rax,4),%eax         #           if num > 6 : BOMB 
+  0x40113b:   cmp    %eax,0x0(%rbp)             #           if num < 1 : BOMB
+  0x40113e:   jne    401145 <phase_6+0x51>      #           for j in range(i+1,6):
+  0x401140:   callq  40143a <explode_bomb>      #               if nums[j] == num:
+  0x401145:   add    $0x1,%ebx                  #                   BOMB
+  0x401148:   cmp    $0x5,%ebx                  #
+  0x40114b:   jle    401135 <phase_6+0x41>      #
+  0x40114d:   add    $0x4,%r13                  #
+  0x401151:   jmp    401114 <phase_6+0x20>      ##############################
+  0x401153:   lea    0x18(%rsp),%rsi            #
+  0x401158:   mov    %r14,%rax                  # This segment is to reassign
+  0x40115b:   mov    $0x7,%ecx                  # nums by each num minused by 7
+  0x401160:   mov    %ecx,%edx                  #
+  0x401162:   sub    (%rax),%edx                #  def reassign_nums(nums):
+  0x401164:   mov    %edx,(%rax)                #      for i in range(6):
+  0x401166:   add    $0x4,%rax                  #          nums[i] = 7 - nums[i]
+  0x40116a:   cmp    %rsi,%rax                  #
+  0x40116d:   jne    401160 <phase_6+0x6c>      ##############################
+  0x40116f:   mov    $0x0,%esi                  #
+  0x401174:   jmp    401197 <phase_6+0xa3>      # This segement re-order the
+  0x401176:   mov    0x8(%rdx),%rdx             # linked list started at
+  0x40117a:   add    $0x1,%eax                  # 0x6032d0 by new sequence of nums,
+  0x40117d:   cmp    %ecx,%eax                  # and then push to current
+  0x40117f:   jne    401176 <phase_6+0x82>      # stack.
+  0x401181:   jmp    401188 <phase_6+0x94>      #
+  0x401183:   mov    $0x6032d0,%edx             #  def reorder_list(nums, head):
+  0x401188:   mov    %rdx,0x20(%rsp,%rsi,2)     #      reordered_list = []
+  0x40118d:   add    $0x4,%rsi                  #      for num in nums:
+  0x401191:   cmp    $0x18,%rsi                 #          move = head
+  0x401195:   je     4011ab <phase_6+0xb7>      #          for i in range(num-1):
+  0x401197:   mov    (%rsp,%rsi,1),%ecx         #              move = move.next
+  0x40119a:   cmp    $0x1,%ecx                  #          reordered_list.append(move)
+  0x40119d:   jle    401183 <phase_6+0x8f>      #
+  0x40119f:   mov    $0x1,%eax                  #
+  0x4011a4:   mov    $0x6032d0,%edx             #
+  0x4011a9:   jmp    401176 <phase_6+0x82>      #
+  0x4011ab:   mov    0x20(%rsp),%rbx            #
+  0x4011b0:   lea    0x28(%rsp),%rax            #
+  0x4011b5:   lea    0x50(%rsp),%rsi            #
+  0x4011ba:   mov    %rbx,%rcx                  #
+  0x4011bd:   mov    (%rax),%rdx                #
+  0x4011c0:   mov    %rdx,0x8(%rcx)             #
+  0x4011c4:   add    $0x8,%rax                  #
+  0x4011c8:   cmp    %rsi,%rax                  #
+  0x4011cb:   je     4011d2 <phase_6+0xde>      #
+  0x4011cd:   mov    %rdx,%rcx                  #
+  0x4011d0:   jmp    4011bd <phase_6+0xc9>      #
+  0x4011d2:   movq   $0x0,0x8(%rdx)             #
+  0x4011d9:                                     ##############################
+  0x4011da:   mov    $0x5,%ebp                  #
+  0x4011df:   mov    0x8(%rbx),%rax             # This segment check if the
+  0x4011e3:   mov    (%rax),%eax                # re-ordered linked list
+  0x4011e5:   cmp    %eax,(%rbx)                # is mono-decremental.
+  0x4011e7:   jge    4011ee <phase_6+0xfa>      #  def is_mono_decremental(reordered_list):
+  0x4011e9:   callq  40143a <explode_bomb>      #      for i in range(5):
+  0x4011ee:   mov    0x8(%rbx),%rbx             #          if reordered_list[i] < reordered_list[i+1]:
+  0x4011f2:   sub    $0x1,%ebp                  #              BOMB
+  0x4011f5:   jne    4011df <phase_6+0xeb>      #############################
+  0x4011f7:   add    $0x50,%rsp                 # pop up stack 80 bytes
+  0x4011fb:   pop    %rbx
+  0x4011fc:   pop    %rbp
+  0x4011fd:   pop    %r12
+  0x4011ff:   pop    %r13
+  0x401201:   pop    %r14
+  0x401203:   retq   
+```
+An important data structure in `phase_6` is the 64 bytes starting from `0x6032d0`
+```
+  (gdb) x/96xb 0x6032d0
+  0x6032d0 <node1>:       0x4c    0x01    0x00    0x00    0x01    0x00    0x00    0x00
+  0x6032d8 <node1+8>:     0xe0    0x32    0x60    0x00    0x00    0x00    0x00    0x00
+  0x6032e0 <node2>:       0xa8    0x00    0x00    0x00    0x02    0x00    0x00    0x00
+  0x6032e8 <node2+8>:     0xf0    0x32    0x60    0x00    0x00    0x00    0x00    0x00
+  0x6032f0 <node3>:       0x9c    0x03    0x00    0x00    0x03    0x00    0x00    0x00
+  0x6032f8 <node3+8>:     0x00    0x33    0x60    0x00    0x00    0x00    0x00    0x00
+  0x603300 <node4>:       0xb3    0x02    0x00    0x00    0x04    0x00    0x00    0x00
+  0x603308 <node4+8>:     0x10    0x33    0x60    0x00    0x00    0x00    0x00    0x00
+  0x603310 <node5>:       0xdd    0x01    0x00    0x00    0x05    0x00    0x00    0x00
+  0x603318 <node5+8>:     0x20    0x33    0x60    0x00    0x00    0x00    0x00    0x00
+  0x603320 <node6>:       0xbb    0x01    0x00    0x00    0x06    0x00    0x00    0x00
+  0x603328 <node6+8>:     0x00    0x00    0x00    0x00    0x00    0x00    0x00    0x00
+```
+From the alias we can see there are 6 nodes, parsed by little endien protocol, we know
+this is a linked list each can be defined as:
+```
+struct Node {
+    int32_t val;
+    int32_t seq;
+    struct Node *next;
+}
+``` 
+So the original linked list is 
+```
+[(0x14c, 1), (0xa8, 2), (0x39c, 3), (0x2b3, 4), (0x1dd, 5), (0x1bb, 6)]
+```
+According to the pseudo code of `phase_6`, the linked list will be re-ordered into
+stack and validated by decreasing order. The decrementally sorted seuqence is:
+```
+[(0x39c, 3), (0x2b3, 4), (0x1dd, 5), (0x1bb, 6), (0x14c, 1), (0xa8, 2)]
+```
+In order to achieve this, assume `phase_6` = "n1 n2 n3 n4 n5 n6", we have the
+inference:
+```
+  7 - n1 = 3
+  7 - n2 = 4
+  7 - n3 = 5
+  7 - n4 = 6
+  7 - n5 = 1
+  7 - n6 = 2
+```
+We've done!
+```
+  02-Bomb-Lab/src > cat solution.txt
+      Border relations with Canada have never been better.
+      1 2 4 8 16 32
+      3 256
+      7 0
+      9?>567
+      4 3 2 1 6 5
+```
+
