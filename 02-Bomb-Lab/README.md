@@ -12,6 +12,11 @@ simply enter current directory and execute
 then you can browse the assembly program in `src/bomb.a`.
 Next, We are going to defuse the phases one by one, with `gdb`.
 
+## Prerequisite
+gdb commands
+```
+```
+
 
 ## Phase 1
 Assume you are now in our current directory on a unix shell, let's enter our src folder and launch `gdb`
