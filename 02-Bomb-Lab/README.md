@@ -15,6 +15,9 @@ Next, We are going to defuse the phases one by one, with `gdb`.
 ## Prerequisite
 gdb commands
 ```
+`b`   set a break b, (e.g. setting a break point at specific address: b *0x400ee4 )
+`c`   continue to next break point
+`si`  execute single instruction
 ```
 
 
