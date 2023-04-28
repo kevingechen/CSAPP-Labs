@@ -4,10 +4,10 @@
 In this lab, students are given a x64 binary [bomb](src/bomb) and a main file [bomb.c](src/bomb.c). From the
 main routine, we can see that there are 6 phases to guess in order to pass the bomb game. If any phase not
 matched, the program returns immediately with a BOMB message. The target of Bomb Lab is to crack the 6 phases
-by understanding the assembly code complied for binary bomb. To obtain the assembly code for bomb, you can
+by understanding the assembly code complied for binary bomb. To get the disassembled code for bomb, you can
 simply enter current directory and execute
 ```sh
-  unix > objdump -d src/bomb > src/bomb.a
+  unix > objdump -d src/bomb > src/bomb.d
 ```
 then you can browse the assembly program in `src/bomb.a`.
 Next, We are going to defuse the phases one by one, with `gdb`.
@@ -15,9 +15,15 @@ Next, We are going to defuse the phases one by one, with `gdb`.
 ## Prerequisite
 gdb commands
 ```
-`b`   set a break b, (e.g. setting a break point at specific address: b *0x400ee4 )
-`c`   continue to next break point
-`si`  execute single instruction
+r    run the program
+c    continue to next break point
+si   execute single instruction
+b    set a break b, (e.g. setting a break point at specific address: b *0x400ee4 )
+```
+monitor layouts
+```
+layout asm      open the assembly code monitor window
+layout reges    open the registers monitor window
 ```
 
 
