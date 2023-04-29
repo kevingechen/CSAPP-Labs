@@ -133,5 +133,20 @@ executing from the following command `/src`
 ```
 
 ### Level 2
+The task of level 2 is to redirect `<getbuf>` to `<touch2>`
+```c
+void touch2(unsigned val)
+{
+    vlevel = 2; /* Part of validation protocol */
+    if (val == cookie) {
+        printf("Touch2!: You called touch2(0x%.8x)\n", val);
+        validate(2);
+    } else {
+        printf("Misfire: You called touch2(0x%.8x)\n", val);
+        fail(2);
+    }
+    exit(0);
+ }
+```
 
 ### Level 3
