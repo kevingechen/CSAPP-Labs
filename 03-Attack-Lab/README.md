@@ -189,3 +189,17 @@ Put the above exploit to file `ctarget.exploit.l2.txt` and execute it:
 ```
 
 ### Level 3
+Level 3 also involves a code injection attack, but passing a string as argument.
+Within the file `ctarget` there is code for functions `<hexmatch>` and `<touch3>`
+having the following C representations:
+```c
+/* Compare string to hex represention of unsigned value */
+int hexmatch(unsigned val, char *sval)
+{
+    char cbuf[110];
+    /* Make position of check string unpredictable */
+    char *s = cbuf + random() % 100;
+    sprintf(s, "%.8x", val);
+    return strncmp(sval, s, 9) == 0;
+}
+```
