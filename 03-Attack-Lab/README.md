@@ -264,15 +264,33 @@ Put the above exploit to file `ctarget.exploit.l3.txt` and execute it:
 Performing code-injection attacks on program `RTARGET` is much more difficult than it is for `CTARGET`,
 because it uses two techniques to thwart such attacks:
 + It uses randomization so that the stack positions differ from one run to another. This makes it
-  impossible to determine where your injected code will be located.
+  impossible to determine where the injected code will be located.
 + It marks the section of memory holding the stack as nonexecutable, so even if you could set the
-  program counter to the start of your injected code, the program would fail with a segmentation fault.
+  program counter to the start of the injected code, the program would fail with a segmentation fault.
 
 To perform buffer attacks in this case, The most general form of this is referred to as *return-oriented
 programming* (ROP). The strategy with ROP is to identify byte sequences within an existing program
 that consist of one or more instructions followed by the instruction `ret`, whose machine code is
-`0xc3`. 
+`0xc3`. Such a byte sequence is called a **gadget** in this context. From example, in the disassembled
+code of `rtarget`, there is a part from function `<setval_210>`
+```asm
+  0000000000400f15 <setval_210>:
+    400f15: c7 07 d4 48 89 c7 movl $0xc78948d4,(%rdi)
+    400f1b: c3 retq
+```
+Luckily, we see that the byte sequence `48 89 c7` encodes the instruction `movq %rax, %rdi`. It means
+that if we use previous buffer overflow technique to redirect next instruction to address `0x400f18`,
+the program will perform the copy of 64-bit value from `%rax` to `%rdi`, and then return to another
+address according to stack top frame.
 
 ## Level 2
+In this task, we need to redirect the program to specific address, so that the instruction could
+set value of `%rdi` by our cookie. The instructions we will execute can be:
+```asm
+  popq %rax          # 1st gadget, pop the stack value and store to register rax
+  retq               # correctly set stack value heading to 2nd gadget
+  movq %rax, %rdi    # 2nd gadget, copy value from register rax to rdi 
+  retq               # correctly set stack value heading to <touch2>
+```
 
 ## Level 3
