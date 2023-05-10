@@ -292,5 +292,8 @@ set value of `%rdi` by our cookie. The instructions we will execute can be:
   movq %rax, %rdi    # 2nd gadget, copy value from register rax to rdi 
   retq               # correctly set stack value heading to <touch2>
 ```
+According to the instruction guidance table, we know the machine code of this part is:
+```
+```
 
 ## Level 3
