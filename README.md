@@ -7,4 +7,4 @@ way.
 ## Labs
 - [x] [Data Lab](/01-Data-Lab)
 - [x] [Bomb Lab](/02-Bomb-Lab)
-- [ ] [Attack Lab](/03-Attack-Lab)
+- [x] [Attack Lab](/03-Attack-Lab)

