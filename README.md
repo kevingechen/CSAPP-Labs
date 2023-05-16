@@ -8,3 +8,4 @@ way.
 - [x] [Data Lab](/01-Data-Lab)
 - [x] [Bomb Lab](/02-Bomb-Lab)
 - [x] [Attack Lab](/03-Attack-Lab)
+- [ ] [Architecture Lab](/04-Architecture-Lab)

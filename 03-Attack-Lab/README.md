@@ -268,7 +268,7 @@ because it uses two techniques to thwart such attacks:
 + It marks the section of memory holding the stack as nonexecutable, so even if you could set the
   program counter to the start of the injected code, the program would fail with a segmentation fault.
 
-To perform buffer attacks in this case, The most general form of this is referred to as *return-oriented
+To perform buffer attacks in this case, the most general form of this is referred to as *return-oriented
 programming* (ROP). The strategy with ROP is to identify byte sequences within an existing program
 that consist of one or more instructions followed by the instruction `ret`, whose machine code is
 `0xc3`. Such a byte sequence is called a **gadget** in this context. From example, in the disassembled
@@ -347,10 +347,10 @@ Putting it to `rtarget.exploit.l2.txt`, we can execute and pass the game:
 
 ## Level 3
 This time, we are going to use return-oriented programming to head to `<touch3>`. Instead of
-passing the direct long integer, we will pass a pointer to the ascii encoded string of our cookie.
-Recall that in `ctarget`, we put the ascii string at the stack bottom, which is highest frame of
-our overflowed buffer. So we will try to pass the correct stack address to `%rdi` before jumpping
-`<touch3>`. By investigating the reference instruction table and the provided gadget farm, we 
+passing the direct long value, we will pass a pointer to the ascii encoded string of our cookie.
+Recall that in `ctarget`, we put the ascii string at the stack bottom, which is the largest address
+frame of our overflowed buffer. So we will try to pass the correct stack address to `%rdi` before
+jumpping `<touch3>`. By investigating the reference instruction table and the provided gadget farm, we 
 find a way to read the value of `%rsp`, even it is a dynamic value from one run to anther. Moreover,
 we will execute a summation of `add_xy(x=%rsp,y=constant)` to get the correct address of our ascii
 string. The sequence of gadgets' assembly code along with its objective are shown in below:
