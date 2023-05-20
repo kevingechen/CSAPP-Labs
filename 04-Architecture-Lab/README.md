@@ -15,6 +15,9 @@ The lab consists of three tasks, respectively:
 ## Task 1
 In this task, we will work under directory `src/sim/misc`.
 We are going to write three Y86-64 programs simulating the example functions in [examples.c](src/sim/misc/examples.c)
+
+### Sum the elements of a linked list
+Original C code in `examples.c`:
 ```c
 /* $begin examples */
 /* linked list element */
@@ -28,23 +31,34 @@ long sum_list(list_ptr ls)
 {
     long val = 0;
     while (ls) {
-    val += ls->val;
-    ls = ls->next;
+        val += ls->val;
+        ls = ls->next;
     }
     return val;
 }
 ```
 
+Y86-64 code `sum_list.ys`:
+```
+# Execution begins at address 0
+
+sum_list:
+
+```
+
+
+
+### Recursively sum the elements of a linked list
 ```c
 /* rsum_list - Recursive version of sum_list */
 long rsum_list(list_ptr ls)
 {
     if (!ls)
-    return 0;
+        return 0;
     else {
-    long val = ls->val;
-    long rest = rsum_list(ls->next);
-    return val + rest;
+        long val = ls->val;
+        long rest = rsum_list(ls->next);
+        return val + rest;
     }
 }
 ```
