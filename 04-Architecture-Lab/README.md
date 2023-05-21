@@ -41,9 +41,48 @@ long sum_list(list_ptr ls)
 Y86-64 code `sum_list.ys`:
 ```
 # Execution begins at address 0
+        .pos 0
+        irmovq stack, %rsp      # Set up stack pointer
+        call main               # Execute main function
+        halt                    # Terminate program
+
+# Linked list of 3 elements
+        .align 8
+ele1:
+        .quad 0x00a
+        .quad ele2
+ele2:
+        .quad 0x0b0
+        .quad ele3
+ele3:
+        .quad 0xc00
+        .quad 0
+
+
+main:
+        irmovq ele1, %rdi      # put head of linked list to %rdi
+        call sum_list          # sum_list(ele1)
+        ret
 
 sum_list:
+        irmovq $8,%r8          # Constant 8 for 'next' addressing
+        xorq %rax,%rax         # Set result = 0
+        andq %rdi,%rdi         # Set CC
+        jmp test
 
+loop:
+        mrmovq (%rdi),%r9      # Get *ls
+        addq %r9,%rax          # Add to result
+        addq %r8,%rdi          # ls = ls->next
+        mrmovq (%rdi),%rdi     # ls = ls->next
+        andq %rdi,%rdi         # Set CC
+test:
+        jne loop               # Stop when end of linked list 0
+        ret
+
+# Stack starts here and grows to lower addresses
+        .pos 0x200
+stack:
 ```
 
 
