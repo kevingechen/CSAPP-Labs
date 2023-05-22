@@ -64,8 +64,9 @@ main:
         call sum_list          # sum_list(ele1)
         ret
 
+# long sum_list(list_ptr ls)
+# ls in %rdi
 sum_list:
-        irmovq $8,%r8          # Constant 8 for 'next' addressing
         xorq %rax,%rax         # Set result = 0
         andq %rdi,%rdi         # Set CC
         jmp test
@@ -73,8 +74,7 @@ sum_list:
 loop:
         mrmovq (%rdi),%r9      # Get *ls
         addq %r9,%rax          # Add to result
-        addq %r8,%rdi          # ls = ls->next
-        mrmovq (%rdi),%rdi     # ls = ls->next
+        mrmovq 8(%rdi),%rdi     # ls = ls->next
         andq %rdi,%rdi         # Set CC
 test:
         jne loop               # Stop when end of linked list 0
@@ -84,7 +84,23 @@ test:
         .pos 0x200
 stack:
 ```
-
+We can put the `ys` file in `src/sim/misc` folder to build and test it:
+```sh
+  04-Architecture-Lab > cd src/sim/misc
+  04-Architecture-Lab/src/sim/misc > make clean; make
+  04-Architecture-Lab/src/sim/misc > yas sum_list.ys; yis sum_list.yo
+    Stopped in 26 steps at PC = 0x13.  Status 'HLT', CC Z=1 S=0 O=0
+    Changes to registers:
+    %rax:   0x0000000000000000      0x0000000000000cba
+    %rsp:   0x0000000000000000      0x0000000000000200
+    %r9:    0x0000000000000000      0x0000000000000c00
+    
+    Changes to memory:
+    0x01f0: 0x0000000000000000      0x000000000000005b
+    0x01f8: 0x0000000000000000      0x0000000000000013
+```
+The output of the simulation result shows the return value in `%rax` is the expected
+sum of all linked list values.
 
 
 ### Recursively sum the elements of a linked list

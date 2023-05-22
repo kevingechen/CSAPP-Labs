@@ -22,8 +22,9 @@ main:
         call sum_list          # sum_list(ele1)
         ret
 
+# long sum_list(list_ptr ls)
+# ls in %rdi
 sum_list:
-        irmovq $8,%r8          # Constant 8 for 'next' addressing
         xorq %rax,%rax         # Set result = 0
         andq %rdi,%rdi         # Set CC
         jmp test
@@ -31,8 +32,7 @@ sum_list:
 loop:
         mrmovq (%rdi),%r9      # Get *ls
         addq %r9,%rax          # Add to result
-        addq %r8,%rdi          # ls = ls->next
-        mrmovq (%rdi),%rdi     # ls = ls->next
+        mrmovq 8(%rdi),%rdi     # ls = ls->next
         andq %rdi,%rdi         # Set CC
 test:
         jne loop               # Stop when end of linked list 0
