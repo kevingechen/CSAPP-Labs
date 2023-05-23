@@ -118,6 +118,60 @@ long rsum_list(list_ptr ls)
 }
 ```
 
+Y86-64 code [`rsum_list.ys`](src/sim/misc/rsum_list.ys):
+```
+# Execution begins at address 0
+        .pos 0
+        irmovq stack, %rsp      # Set up stack pointer
+        call main               # Execute main function
+        halt                    # Terminate program
+
+# Linked list of 3 elements
+        .align 8
+ele1:
+        .quad 0x00a
+        .quad ele2
+ele2:
+        .quad 0x0b0
+        .quad ele3
+ele3:
+        .quad 0xc00
+        .quad 0
+
+
+main:
+        irmovq ele1, %rdi      # put head of linked list to %rdi
+        call rsum_list         # rsum_list(ele1)
+        ret
+
+# long rsum_list(list_ptr ls)
+# ls in %rdi
+rsum_list:
+        andq %rdi,%rdi         # Set CC
+        jne recursion          # if (ls) goto recursion
+        xorq %rax,%rax         # if (!ls) return 0
+        ret
+recursion:
+        mrmovq (%rdi),%r9      # Get *ls
+        pushq %r9
+        mrmovq 8(%rdi),%rdi    # ls = ls->next
+        call rsum_list
+        popq %r9
+        addq %r9,%rax          # Add current value to recursive result
+        ret
+
+# Stack starts here and grows to lower addresses
+        .pos 0x200
+stack:
+```
+We can put the `ys` file in `src/sim/misc` folder to build and test it:
+```sh
+  04-Architecture-Lab > cd src/sim/misc
+  04-Architecture-Lab/src/sim/misc > make clean; make
+  04-Architecture-Lab/src/sim/misc > yas rsum_list.ys; yis rsum_list.yo
+
+```
+
 ## Task 2
 
 ## Task 3
