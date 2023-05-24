@@ -172,6 +172,22 @@ We can put the `ys` file in `src/sim/misc` folder to build and test it:
 
 ```
 
+### Copy src to dest and return xor checksum of src
+Example C code:
+```c
+long copy_block(long *src, long *dest, long len)
+{
+    long result = 0;
+    while (len > 0) {
+	long val = *src++;
+	*dest++ = val;
+	result ^= val;
+	len--;
+    }
+    return result;
+}
+```
+
 ## Task 2
 
 ## Task 3
