@@ -169,8 +169,27 @@ We can put the `ys` file in `src/sim/misc` folder to build and test it:
   04-Architecture-Lab > cd src/sim/misc
   04-Architecture-Lab/src/sim/misc > make clean; make
   04-Architecture-Lab/src/sim/misc > yas rsum_list.ys; yis rsum_list.yo
+    Stopped in 37 steps at PC = 0x13.  Status 'HLT', CC Z=0 S=0 O=0
+    Changes to registers:
+    %rax:   0x0000000000000000      0x0000000000000cba
+    %rsp:   0x0000000000000000      0x0000000000000200
+    %r9:    0x0000000000000000      0x000000000000000a
 
+    Changes to memory:
+    0x01c0: 0x0000000000000000      0x0000000000000089
+    0x01c8: 0x0000000000000000      0x0000000000000c00
+    0x01d0: 0x0000000000000000      0x0000000000000089
+    0x01d8: 0x0000000000000000      0x00000000000000b0
+    0x01e0: 0x0000000000000000      0x0000000000000089
+    0x01e8: 0x0000000000000000      0x000000000000000a
+    0x01f0: 0x0000000000000000      0x000000000000005b
+    0x01f8: 0x0000000000000000      0x0000000000000013
 ```
+The output at `%rax` is the expected value `0xcba`. A note on this recursion
+implementation, before we do the recursion call on `rsum_list(ls->next)`, it
+is necessary to push the current value of `*ls` to the stack, and then pop it
+once the recursion call returns. This step is required for any local variable
+which may be modified during recurssion.
 
 ### Copy src to dest and return xor checksum of src
 Example C code:
