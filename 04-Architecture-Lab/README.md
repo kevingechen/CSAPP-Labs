@@ -207,6 +207,29 @@ long copy_block(long *src, long *dest, long len)
 }
 ```
 
+```
+# Execution begins at address 0
+        .pos 0
+        irmovq stack, %rsp      # Set up stack pointer
+        call main               # Execute main function
+        halt                    # Terminate program
+
+        .align 8
+# Source block
+src:
+        .quad 0x00a
+        .quad 0x0b0
+        .quad 0xc00
+
+# Destination block
+dest:
+        .quad 0x111
+        .quad 0x222
+        .quad 0x333
+
+
+```
+
 ## Task 2
 
 ## Task 3
