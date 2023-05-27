@@ -198,10 +198,10 @@ long copy_block(long *src, long *dest, long len)
 {
     long result = 0;
     while (len > 0) {
-	long val = *src++;
-	*dest++ = val;
-	result ^= val;
-	len--;
+        long val = *src++;
+        *dest++ = val;
+        result ^= val;
+        len--;
     }
     return result;
 }
@@ -227,7 +227,36 @@ dest:
         .quad 0x222
         .quad 0x333
 
+main:
+        irmovq src, %rsi
+        irmovq dest, %rdi
+        irmovq $3, %rcx
+        call copy_block
+        ret
 
+# long copy_block(long *src, long *dest, long len)
+# src in %rsi, dest in %rdi, len in %rcx
+copy_block:
+        irmovq $8,%r8          # Constant 8
+        irmovq $1,%r9          # Constant 1 
+        xorq %rax,%rax         # Set result = 0
+        andq %rcx,%rcx         # Set CC
+        jmp test
+
+loop:
+        mrmovq (%rsi),%r10     # %r10 = *src
+        addq %r8,%rsi          # src++
+        rmmovq %r10,(%rdi)     # *dest = %r10
+        addq %r8,%rdi          # dest++
+        xorq %r10,%rax         # Xor to result
+        subq %r9,%rcx          # len--. Set CC
+test:
+        jne loop               # Stop when len == 0
+        ret
+
+# Stack starts here and grows to lower addresses
+        .pos 0x200
+stack:
 ```
 
 ## Task 2
