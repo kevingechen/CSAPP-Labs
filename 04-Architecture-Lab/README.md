@@ -260,5 +260,13 @@ stack:
 ```
 
 ## Task 2
+Computations of `iaddq` in sequential implementation of Y86-64:
+
+| **Stage** | **iaddq V, rB**|
+| :---      | :---           |
+| Fetch     | $icode:ifun \leftarrow M_1[PC]$, $rA:rB \leftarrow M_1[PC+1]$ |
+|           | $valC \leftarrow M_8[PC+2]$, $valP \leftarrow PC+10$ |
+| Decode    | todo |
+
 
 ## Task 3
