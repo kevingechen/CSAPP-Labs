@@ -264,9 +264,14 @@ Computations of `iaddq` in sequential implementation of Y86-64:
 
 | **Stage** | **iaddq V, rB**|
 | :---      | :---           |
-| Fetch     | $icode:ifun \leftarrow M_1[PC]$, $rA:rB \leftarrow M_1[PC+1]$ |
-|           | $valC \leftarrow M_8[PC+2]$, $valP \leftarrow PC+10$ |
-| Decode    | todo |
+| Fetch     | $icode:ifun \leftarrow M_1[PC]$ |
+| Fetch     | $rA:rB \leftarrow M_1[PC+1]$    |
+| Fetch     | $valC \leftarrow M_8[PC+2]$     |
+| Fetch     | $valP \leftarrow PC+10$         |
+| Decode    | $valB \leftarrow R[rB]$ |
+| Execute   | $valE \leftarrow valB + valC$ |
+| Execute   | $Set CC$ |
+| Memory    | -  |
 
 
 ## Task 3
