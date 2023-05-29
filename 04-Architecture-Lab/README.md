@@ -260,7 +260,7 @@ stack:
 ```
 
 ## Task 2
-Computations of `iaddq` in sequential implementation of Y86-64:
+Computations in sequential implementation of Y86-64 instruction `iaddq` :
 
 | **Stage** | **iaddq V, rB**|
 | :---      | :---           |
@@ -272,6 +272,7 @@ Computations of `iaddq` in sequential implementation of Y86-64:
 | Execute   | $valE \leftarrow valB + valC$ |
 | Execute   | $Set CC$ |
 | Memory    | -  |
-
+| Write back| $R[rB] \leftarrow valE$ |
+| PC update | $PC \leftarrow valP$ |
 
 ## Task 3
