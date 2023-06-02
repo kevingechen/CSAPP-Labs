@@ -258,6 +258,31 @@ test:
         .pos 0x200
 stack:
 ```
+By executing the `copy.ys`, we get the following:
+```sh
+  04-Architecture-Lab > cd src/sim/misc
+  04-Architecture-Lab/src/sim/misc > make clean; make
+  04-Architecture-Lab/src/sim/misc > yas copy.ys; yis copy.yo
+
+    Stopped in 36 steps at PC = 0x13.  Status 'HLT', CC Z=1 S=0 O=0
+    Changes to registers:
+    %rax:   0x0000000000000000      0x0000000000000cba
+    %rsp:   0x0000000000000000      0x0000000000000200
+    %rsi:   0x0000000000000000      0x0000000000000030
+    %rdi:   0x0000000000000000      0x0000000000000048
+    %r8:    0x0000000000000000      0x0000000000000008
+    %r9:    0x0000000000000000      0x0000000000000001
+    %r10:   0x0000000000000000      0x0000000000000c00
+
+    Changes to memory:
+    0x0030: 0x0000000000000111      0x000000000000000a
+    0x0038: 0x0000000000000222      0x00000000000000b0
+    0x0040: 0x0000000000000333      0x0000000000000c00
+    0x01f0: 0x0000000000000000      0x000000000000006f
+    0x01f8: 0x0000000000000000      0x0000000000000013
+```
+Clearly, the `%rax` value is 0xcba when the program exits. The memory of
+`dest`, starting from `0x0030`, is overwritten by the values from `src`.
 
 ## Task 2
 Computations in sequential implementation of Y86-64 instruction `iaddq` :
@@ -275,9 +300,9 @@ Computations in sequential implementation of Y86-64 instruction `iaddq` :
 | Write back| $R[rB] \leftarrow valE$ |
 | PC update | $PC \leftarrow valP$ |
 
-Now we can update the file [`seq-full.hcl`](/src/sim/seq/seq-full.hcl) to implement
+Now we can update the file [`seq-full.hcl`](src/sim/seq/seq-full.hcl) to implement
 `iaddq`, by specifying all the sequential module related to this command. A diff file
-compared with the original one is shown in [`seq-full.diff`](/src/sim/seq/seq-full.diff),
+compared with the original one is shown in [`seq-full.diff`](src/sim/seq/seq-full.diff),
 which illustrates the modification required:
 ```diff
  bool instr_valid = icode in 
