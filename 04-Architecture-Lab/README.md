@@ -118,7 +118,7 @@ long rsum_list(list_ptr ls)
 }
 ```
 
-Y86-64 code [`rsum_list.ys`](src/sim/misc/rsum_list.ys):
+Y86-64 code [`rsum.ys`](src/sim/misc/rsum.ys):
 ```
 # Execution begins at address 0
         .pos 0
@@ -168,7 +168,7 @@ We can put the `ys` file in `src/sim/misc` folder to build and test it:
 ```sh
   04-Architecture-Lab > cd src/sim/misc
   04-Architecture-Lab/src/sim/misc > make clean; make
-  04-Architecture-Lab/src/sim/misc > yas rsum_list.ys; yis rsum_list.yo
+  04-Architecture-Lab/src/sim/misc > yas rsum.ys; yis rsum.yo
     Stopped in 37 steps at PC = 0x13.  Status 'HLT', CC Z=0 S=0 O=0
     Changes to registers:
     %rax:   0x0000000000000000      0x0000000000000cba
