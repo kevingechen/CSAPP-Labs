@@ -378,3 +378,18 @@ which illustrates the modification required:
 ```
 
 ## Task 3
+
+In this task, we are going to optimize the `ncopy.ys` program.
+The default performance obtained by the benchmark script is:
+```sh
+  04-Architecture-Lab > cd src/sim/pipe
+  04-Architecture-Lab/src/sim/pipe > make clean; make VERSION=full
+  04-Architecture-Lab/src/sim/pipe > ./benchmark.pl
+        ncopy
+    0	13
+    1	29	29.00
+    ...
+    64	913	14.27
+    Average CPE	15.18
+    Score	0.0/60.0
+```
