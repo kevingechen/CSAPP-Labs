@@ -393,3 +393,34 @@ The default performance obtained by the benchmark script is:
     Average CPE	15.18
     Score	0.0/60.0
 ```
+Notice that in the given `ncopy.ys`, the register %r10% is used multiple times
+within the loop for constant assignement. We can put these assignments out of
+the loop to accelerate. Here is the diff version:
+```diff
+##################################################################
+# You can modify this portion
+    # Loop header
++   irmovq $1, %r8
++   irmovq $8, %r9
+    xorq %rax,%rax      # count = 0;
+
+Loop:   mrmovq (%rdi), %r10 # read val from src
+    rmmovq %r10, (%rsi) # ...and store it to dst
+    andq %r10, %r10     # val <= 0?
+    jle Npos            # if so, goto Npos:
+-   irmovq $1, %r10
+-   addq %r10, %rax     # count++
+-Npos:   irmovq $1, %r10
+-   subq %r10, %rdx     # len--
+-   irmovq $8, %r10
+-   addq %r10, %rdi     # src++
+-   addq %r10, %rsi     # dst++
++   addq %r8, %rax      # count++
++Npos:
++   subq %r8, %rdx      # len--
++   addq %r9, %rdi      # src++
++   addq %r9, %rsi      # dst++
+    andq %rdx,%rdx      # len > 0?
+    jg Loop         # if so, goto Loop:
+##################################################################
+```
