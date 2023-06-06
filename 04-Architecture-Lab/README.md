@@ -393,6 +393,8 @@ The default performance obtained by the benchmark script is:
     Average CPE	15.18
     Score	0.0/60.0
 ```
+
+### Version 1
 Notice that in the given `ncopy.ys`, the register %r10% is used multiple times
 within the loop for constant assignement. We can put these assignments out of
 the loop to accelerate. Here is the diff version:
@@ -424,3 +426,17 @@ Loop:   mrmovq (%rdi), %r10 # read val from src
     jg Loop         # if so, goto Loop:
 ##################################################################
 ```
+Here is the performance of this version:
+```sh
+  04-Architecture-Lab > cd src/sim/pipe
+  04-Architecture-Lab/src/sim/pipe > make clean; make VERSION=full
+  04-Architecture-Lab/src/sim/pipe > ./benchmark.pl
+        ncopy
+    0	15
+    1	29	29.00
+    ...
+    64  755 11.80
+    Average CPE	12.84
+    Score	0.0/60.0
+```
+
