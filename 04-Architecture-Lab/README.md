@@ -440,3 +440,42 @@ Here is the performance of this version:
     Score	0.0/60.0
 ```
 
+### Version 2
+Now let's apply the loop unrolling method to rewrite the `ncopy.c` program. We
+first implement a version of `2 x 1 unrolling`:
+```C
+/* 2 x 1 loop unrolling */
+word_t ncopy_2_1_unrolling(word_t *src, word_t *dst, word_t len)
+{
+    word_t limit = len - 1;
+    if (limit < 0)
+        return 0;
+    word_t count = 0;
+    word_t val1;
+    word_t val2;
+    word_t i = 0;
+    for (; i < limit; i += 2) {
+        val1 = *src;
+        *dst = val1;
+        if (val1 > 0)
+            count++;
+
+        val2 = *(src+1);
+        *(dst+1) = val2;
+        if (val2 > 0)
+            count++;
+
+        src += 2;
+        dst += 2;
+    }
+    while (i < len) {
+        val = *src++;
+        *dst++ = val;
+        if (val > 0)
+            count++;
+        i++;
+    }
+    
+    return count;
+}
+```
