@@ -16,24 +16,51 @@ ncopy:
 ##################################################################
 # You can modify this portion
 	# Loop header
+	rrmovq %rdx,%rcx   # limit = len; 
 	irmovq $1, %r8
-	irmovq $8, %r9
+	subq %r8, %rcx     # limit--;
+	irmovq $2, %r9
+	irmovq $16, %r10
+	irmovq $8, %r13
 	xorq %rax,%rax		# count = 0;
 	andq %rdx,%rdx		# len <= 0?
 	jle Done		# if so, goto Done:
+    xorq %rbx,%rbx      # i = 0
+    subq %rbx,%rcx      # limit - i <= 0?
+    jle LoopRemaining # if so, goto LoopRemaining:
 
-Loop:
-    mrmovq (%rdi), %r10	# read val from src...
-	rmmovq %r10, (%rsi)	# ...and store it to dst
-	andq %r10, %r10		# val <= 0?
-	jle Npos		# if so, goto Npos:
+LoopUnrolling:
+    mrmovq (%rdi),  %r11	# val1 = *src
+    mrmovq 8(%rdi), %r12	# val2 = *(src+1)
+	rmmovq %r11, (%rsi)	    # *dst = val1
+	rmmovq %r12, 8(%rsi)	# *(dst+1) = val8
+	andq %r11, %r11		# val1 <= 0?
+	jle Npos1		# if so, goto Npos1:
 	addq %r8, %rax		# count++
-Npos:
-	subq %r8, %rdx		# len--
-	addq %r9, %rdi		# src++
-	addq %r9, %rsi		# dst++
-	andq %rdx,%rdx		# len > 0?
-	jg Loop			# if so, goto Loop:
+Npos1:
+	andq %r12, %r12		# val2 <= 0?
+	jle Npos2		# if so, goto Npos2:
+	addq %r8, %rax		# count++
+Npos2:
+    addq %r10, %rdi     # src += 2
+    addq %r10, %rsi     # src += 2
+    addq %r9, %rbx      # i += 2
+    subq %rbx,%rcx      # limit - i > 0?
+    jg LoopUnrolling # if so, go to LoopUnrolling
+
+LoopRemaining:
+    subq %rbx, %rdx     # len - i <= 0?
+    jle Done         # if so, goto Done
+    mrmovq (%rdi),  %r11	# val1 = *src
+	rmmovq %r11, (%rsi)	    # *dst = val1
+	andq %r11, %r11		# val1 <= 0?
+	jle Npos3		# if so, goto Npos3:
+	addq %r8, %rax		# count++
+Npos3:
+	addq %r13, %rdi		# src++
+	addq %r13, %rsi		# dst++
+	addq %r8, %rbx		# i++
+	jmp LoopRemaining   # goto LoopRemaining:
 ##################################################################
 # Do not modify the following section of code
 # Function epilogue.

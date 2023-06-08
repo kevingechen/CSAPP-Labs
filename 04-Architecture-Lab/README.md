@@ -448,20 +448,17 @@ first implement a version of `2 x 1 unrolling`:
 word_t ncopy_2_1_unrolling(word_t *src, word_t *dst, word_t len)
 {
     word_t limit = len - 1;
-    if (limit < 0)
-        return 0;
     word_t count = 0;
     word_t val1;
     word_t val2;
     word_t i = 0;
     for (; i < limit; i += 2) {
         val1 = *src;
+        val2 = *(src+1);
         *dst = val1;
+        *(dst+1) = val2;
         if (val1 > 0)
             count++;
-
-        val2 = *(src+1);
-        *(dst+1) = val2;
         if (val2 > 0)
             count++;
 
@@ -469,13 +466,17 @@ word_t ncopy_2_1_unrolling(word_t *src, word_t *dst, word_t len)
         dst += 2;
     }
     while (i < len) {
-        val = *src++;
-        *dst++ = val;
-        if (val > 0)
+        val1 = *src++;
+        *dst++ = val1;
+        if (val1 > 0)
             count++;
         i++;
     }
     
     return count;
 }
+```
+The Y86-64 code for this version is:
+```
+
 ```
