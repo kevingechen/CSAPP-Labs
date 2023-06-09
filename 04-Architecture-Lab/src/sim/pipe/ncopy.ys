@@ -33,7 +33,7 @@ LoopUnrolling:
     mrmovq (%rdi),  %r11	# val1 = *src
     mrmovq 8(%rdi), %r12	# val2 = *(src+1)
 	rmmovq %r11, (%rsi)	    # *dst = val1
-	rmmovq %r12, 8(%rsi)	# *(dst+1) = val8
+	rmmovq %r12, 8(%rsi)	# *(dst+1) = val2
 	andq %r11, %r11		# val1 <= 0?
 	jle Npos1		# if so, goto Npos1:
 	addq %r8, %rax		# count++
@@ -43,7 +43,7 @@ Npos1:
 	addq %r8, %rax		# count++
 Npos2:
     addq %r10, %rdi     # src += 2
-    addq %r10, %rsi     # src += 2
+    addq %r10, %rsi     # dst += 2
     addq %r9, %rbx      # i += 2
     subq %rbx,%rcx      # limit - i > 0?
     jg LoopUnrolling # if so, go to LoopUnrolling
