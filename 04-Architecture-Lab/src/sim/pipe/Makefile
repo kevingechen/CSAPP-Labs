@@ -58,6 +58,6 @@ drivers:
 
 
 clean:
-	rm -f psim pipe-*.c *.o *.exe *~ 
+	rm -f psim pipe-*.c *.o *.exe *~ sdriver.y* ldriver.y*
 
 

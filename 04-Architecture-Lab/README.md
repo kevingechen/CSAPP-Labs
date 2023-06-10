@@ -429,7 +429,7 @@ Loop:   mrmovq (%rdi), %r10 # read val from src
 Here is the performance of this version:
 ```sh
   04-Architecture-Lab > cd src/sim/pipe
-  04-Architecture-Lab/src/sim/pipe > make clean; make VERSION=full
+  04-Architecture-Labsrc/sim/pipe > make clean; make VERSION=full
   04-Architecture-Lab/src/sim/pipe > ./benchmark.pl
         ncopy
     0	15
@@ -478,5 +478,79 @@ word_t ncopy_2_1_unrolling(word_t *src, word_t *dst, word_t len)
 ```
 The Y86-64 code for this version is:
 ```
+# Function prologue.
+# %rdi = src, %rsi = dst, %rdx = len
+ncopy:
 
+##################################################################
+# You can modify this portion
+	# Loop header
+	rrmovq %rdx,%rcx    # limit = len; 
+	irmovq $1, %r8
+	subq %r8, %rcx      # limit--;
+	irmovq $2, %r9
+	irmovq $16, %r10
+	irmovq $8, %r13
+	xorq %rax,%rax		# count = 0;
+	andq %rdx,%rdx		# len <= 0?
+	jle Done		  # if so, goto Done:
+    xorq %rbx,%rbx      # i = 0
+    rrmovq %rcx,%r14    # avoid modifying limit
+    subq %rbx,%r14      # limit - i <= 0?
+    jle LoopRemaining # if so, goto LoopRemaining:
+
+LoopUnrolling:
+    mrmovq (%rdi),  %r11	# val1 = *src
+    mrmovq 8(%rdi), %r12	# val2 = *(src+1)
+	rmmovq %r11, (%rsi)	    # *dst = val1
+	rmmovq %r12, 8(%rsi)	# *(dst+1) = val2
+	andq %r11, %r11		    # val1 <= 0?
+	jle Npos1		     # if so, goto Npos1:
+	addq %r8, %rax		    # count++
+Npos1:
+	andq %r12, %r12		# val2 <= 0?
+	jle Npos2		# if so, goto Npos2:
+	addq %r8, %rax		# count++
+Npos2:
+    addq %r10, %rdi     # src += 2
+    addq %r10, %rsi     # dst += 2
+    addq %r9, %rbx      # i += 2
+    rrmovq %rcx,%r14     # avoid modifying limit
+    subq %rbx,%r14      # limit - i > 0?
+    jg LoopUnrolling # if so, go to LoopUnrolling
+
+    rrmovq %rdx, %r14   # avoid modifying len
+    subq %rbx, %r14     # len - i <= 0?
+    jle Done         # if so, goto Done
+LoopRemaining:
+    mrmovq (%rdi),  %r11 # val1 = *src
+	rmmovq %r11, (%rsi)	 # *dst = val1
+	andq %r11, %r11		 # val1 <= 0?
+	jle Npos3		 # if so, goto Npos3:
+	addq %r8, %rax		 # count++
+Npos3:
+	addq %r13, %rdi		# src++
+	addq %r13, %rsi		# dst++
+	addq %r8, %rbx		# i++
+    rrmovq %rdx, %r14   # avoid modifying len
+    subq %rbx, %r14     # len - i > 0?
+    jg LoopRemaining  # if so, goto LoopRemaining
+
+##################################################################
+# Do not modify the following section of code
+# Function epilogue.
+Done:
+	ret
+```
+And we can evalute this `2 x 1` loop unrolling version:
+```sh
+  04-Architecture-Labsrc/sim/pipe > make clean; make VERSION=full
+  04-Architecture-Lab/src/sim/pipe > ./benchmark.pl
+        ncopy
+    0	19
+    1	38	38.00
+    ...
+    64  576 9.00
+    Average CPE	11.01
+    Score	0.0/60.0
 ```
