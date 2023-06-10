@@ -554,3 +554,50 @@ And we can evalute this `2 x 1` loop unrolling version:
     Average CPE	11.01
     Score	0.0/60.0
 ```
+
+### Version 3
+In this version, we move one more step forward based on Version 2, thus
+ implementing a version of `2 x 2 unrolling`. The difference compare to
+the previous version is following:
+```diff
+- /* 2 x 1 loop unrolling */
+- word_t ncopy_2_1_unrolling(word_t *src, word_t *dst, word_t len)
++ /* 2 x 2 loop unrolling */
++ word_t ncopy_2_2_unrolling(word_t *src, word_t *dst, word_t len)
+{
+    word_t limit = len - 1;
+-    word_t count = 0;
++    word_t count1 = 0;
++    word_t count2 = 0;
+    word_t val1;
+    word_t val2;
+    word_t i = 0;
+    for (; i < limit; i += 2) {
+        val1 = *src;
+        val2 = *(src+1);
+        *dst = val1;
+        *(dst+1) = val2;
+        if (val1 > 0)
+-            count++;
++            count1++;
+        if (val2 > 0)
+-            count++;
++            count2++;
+
+        src += 2;
+        dst += 2;
+    }
++    count1 += count2;
+    while (i < len) {
+        val1 = *src++;
+        *dst++ = val1;
+        if (val1 > 0)
+-            count++;
++            count1++;
+        i++;
+    }
+    
+-    return count;
++    return count1;
+}
+```
