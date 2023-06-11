@@ -17,12 +17,13 @@ ncopy:
 # You can modify this portion
 	# Loop header
 	rrmovq %rdx,%rcx    # limit = len; 
-	irmovq $3, %r8
-	subq %r8, %rcx      # limit -= 3;
-	irmovq $1, %r8      # Reset Constant
-	irmovq $4, %r9
-	irmovq $32, %r10
-	xorq %rax,%rax		# count = 0;
+	irmovq $1, %r8
+	subq %r8, %rcx      # limit--;
+	irmovq $2, %r9
+	irmovq $16, %r10
+	irmovq $8, %r13
+	xorq %rax,%rax		# count1 = 0;
+	xorq %rbp,%rbp		# count2 = 0;
 	andq %rdx,%rdx		# len <= 0?
 	jle Done		  # if so, goto Done:
     xorq %rbx,%rbx      # i = 0
@@ -33,47 +34,34 @@ ncopy:
 LoopUnrolling:
     mrmovq (%rdi),  %r11	# val1 = *src
     mrmovq 8(%rdi), %r12	# val2 = *(src+1)
-    mrmovq 16(%rdi),%r13	# val3 = *(src+2)
-    mrmovq 24(%rdi),%r14	# val4 = *(src+3)
 	rmmovq %r11, (%rsi)	    # *dst = val1
 	rmmovq %r12, 8(%rsi)	# *(dst+1) = val2
-	rmmovq %r13,16(%rsi)	# *(dst+2) = val3
-	rmmovq %r14,24(%rsi)	# *(dst+3) = val4
 	andq %r11, %r11		    # val1 <= 0?
 	jle Npos1		     # if so, goto Npos1:
-	addq %r8, %rax		    # count++
+	addq %r8, %rax		    # count1++
 Npos1:
 	andq %r12, %r12		# val2 <= 0?
 	jle Npos2		# if so, goto Npos2:
-	addq %r8, %rax		# count++
+	addq %r8, %rbp		# count2++
 Npos2:
-	andq %r13, %r13		# val3 <= 0?
-	jle Npos3		# if so, goto Npos3:
-	addq %r8, %rax		# count++
-Npos3:
-	andq %r14, %r14		# val4 <= 0?
-	jle Npos4		# if so, goto Npos4:
-	addq %r8, %rax		# count++
-Npos4:
-    addq %r10, %rdi     # src += 4
-    addq %r10, %rsi     # dst += 4
-    addq %r9, %rbx      # i += 4
+    addq %r10, %rdi     # src += 2
+    addq %r10, %rsi     # dst += 2
+    addq %r9, %rbx      # i += 2
     rrmovq %rcx,%r14     # avoid modifying limit
     subq %rbx,%r14      # limit - i > 0?
     jg LoopUnrolling # if so, go to LoopUnrolling
 
+	addq %rbp, %rax		# count1 += count2
     rrmovq %rdx, %r14   # avoid modifying len
     subq %rbx, %r14     # len - i <= 0?
     jle Done         # if so, goto Done
-
 LoopRemaining:
-	irmovq $8, %r13     # Set Constant
-    mrmovq (%rdi), %r11  # val1 = *src
+    mrmovq (%rdi),  %r11 # val1 = *src
 	rmmovq %r11, (%rsi)	 # *dst = val1
 	andq %r11, %r11		 # val1 <= 0?
-	jle NposR		 # if so, goto NposR:
+	jle Npos3		 # if so, goto Npos3:
 	addq %r8, %rax		 # count++
-NposR:
+Npos3:
 	addq %r13, %rdi		# src++
 	addq %r13, %rsi		# dst++
 	addq %r8, %rbx		# i++

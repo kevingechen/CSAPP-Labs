@@ -17,11 +17,11 @@ ncopy:
 # You can modify this portion
 	# Loop header
 	rrmovq %rdx,%rcx    # limit = len; 
-	irmovq $3, %r8
-	subq %r8, %rcx      # limit -= 3;
+	irmovq $2, %r8
+	subq %r8, %rcx      # limit -= 2;
 	irmovq $1, %r8      # Reset Constant
-	irmovq $4, %r9
-	irmovq $32, %r10
+	irmovq $3, %r9
+	irmovq $24, %r10
 	xorq %rax,%rax		# count = 0;
 	andq %rdx,%rdx		# len <= 0?
 	jle Done		  # if so, goto Done:
@@ -34,11 +34,9 @@ LoopUnrolling:
     mrmovq (%rdi),  %r11	# val1 = *src
     mrmovq 8(%rdi), %r12	# val2 = *(src+1)
     mrmovq 16(%rdi),%r13	# val3 = *(src+2)
-    mrmovq 24(%rdi),%r14	# val4 = *(src+3)
 	rmmovq %r11, (%rsi)	    # *dst = val1
 	rmmovq %r12, 8(%rsi)	# *(dst+1) = val2
 	rmmovq %r13,16(%rsi)	# *(dst+2) = val3
-	rmmovq %r14,24(%rsi)	# *(dst+3) = val4
 	andq %r11, %r11		    # val1 <= 0?
 	jle Npos1		     # if so, goto Npos1:
 	addq %r8, %rax		    # count++
@@ -51,13 +49,9 @@ Npos2:
 	jle Npos3		# if so, goto Npos3:
 	addq %r8, %rax		# count++
 Npos3:
-	andq %r14, %r14		# val4 <= 0?
-	jle Npos4		# if so, goto Npos4:
-	addq %r8, %rax		# count++
-Npos4:
-    addq %r10, %rdi     # src += 4
-    addq %r10, %rsi     # dst += 4
-    addq %r9, %rbx      # i += 4
+    addq %r10, %rdi     # src += 3
+    addq %r10, %rsi     # dst += 3
+    addq %r9, %rbx      # i += 3
     rrmovq %rcx,%r14     # avoid modifying limit
     subq %rbx,%r14      # limit - i > 0?
     jg LoopUnrolling # if so, go to LoopUnrolling

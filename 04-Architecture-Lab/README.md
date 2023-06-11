@@ -440,7 +440,7 @@ Here is the performance of this version:
     Score	0.0/60.0
 ```
 
-### Version 2
+### Version 2-1
 Now let's apply the loop unrolling method to rewrite the `ncopy.c` program. We
 first implement a version of `2 x 1 unrolling`:
 ```C
@@ -449,8 +449,8 @@ word_t ncopy_2_1_unrolling(word_t *src, word_t *dst, word_t len)
 {
     word_t limit = len - 1;
     word_t count = 0;
-    word_t val1;
-    word_t val2;
+    word_t val1 = 0;
+    word_t val2 = 0;
     word_t i = 0;
     for (; i < limit; i += 2) {
         val1 = *src;
@@ -484,57 +484,57 @@ ncopy:
 
 ##################################################################
 # You can modify this portion
-	# Loop header
-	rrmovq %rdx,%rcx    # limit = len; 
-	irmovq $1, %r8
-	subq %r8, %rcx      # limit--;
-	irmovq $2, %r9
-	irmovq $16, %r10
-	irmovq $8, %r13
-	xorq %rax,%rax		# count = 0;
-	andq %rdx,%rdx		# len <= 0?
-	jle Done		  # if so, goto Done:
+    # Loop header
+    rrmovq %rdx,%rcx    # limit = len; 
+    irmovq $1, %r8
+    subq %r8, %rcx      # limit--;
+    irmovq $2, %r9
+    irmovq $16, %r10
+    irmovq $8, %r13
+    xorq %rax,%rax      # count = 0;
+    andq %rdx,%rdx      # len <= 0?
+    jle Done          # if so, goto Done:
     xorq %rbx,%rbx      # i = 0
     rrmovq %rcx,%r14    # avoid modifying limit
     subq %rbx,%r14      # limit - i <= 0?
     jle LoopRemaining # if so, goto LoopRemaining:
 
 LoopUnrolling:
-    mrmovq (%rdi),  %r11	# val1 = *src
-    mrmovq 8(%rdi), %r12	# val2 = *(src+1)
-	rmmovq %r11, (%rsi)	    # *dst = val1
-	rmmovq %r12, 8(%rsi)	# *(dst+1) = val2
-	andq %r11, %r11		    # val1 <= 0?
-	jle Npos1		     # if so, goto Npos1:
-	addq %r8, %rax		    # count++
+    mrmovq (%rdi),  %r11  # val1 = *src
+    mrmovq 8(%rdi), %r12  # val2 = *(src+1)
+    rmmovq %r11, (%rsi)   # *dst = val1
+    rmmovq %r12, 8(%rsi)  # *(dst+1) = val2
+    andq %r11, %r11       # val1 <= 0?
+    jle Npos1          # if so, goto Npos1:
+    addq %r8, %rax        # count++
 Npos1:
-	andq %r12, %r12		# val2 <= 0?
-	jle Npos2		# if so, goto Npos2:
-	addq %r8, %rax		# count++
+    andq %r12, %r12      # val2 <= 0?
+    jle Npos2          # if so, goto Npos2:
+    addq %r8, %rax       # count++
 Npos2:
-    addq %r10, %rdi     # src += 2
-    addq %r10, %rsi     # dst += 2
-    addq %r9, %rbx      # i += 2
+    addq %r10, %rdi      # src += 2
+    addq %r10, %rsi      # dst += 2
+    addq %r9, %rbx       # i += 2
     rrmovq %rcx,%r14     # avoid modifying limit
-    subq %rbx,%r14      # limit - i > 0?
-    jg LoopUnrolling # if so, go to LoopUnrolling
+    subq %rbx,%r14       # limit - i > 0?
+    jg LoopUnrolling   # if so, go to LoopUnrolling
 
-    rrmovq %rdx, %r14   # avoid modifying len
-    subq %rbx, %r14     # len - i <= 0?
-    jle Done         # if so, goto Done
+    rrmovq %rdx, %r14    # avoid modifying len
+    subq %rbx, %r14      # len - i <= 0?
+    jle Done           # if so, goto Done
 LoopRemaining:
     mrmovq (%rdi),  %r11 # val1 = *src
-	rmmovq %r11, (%rsi)	 # *dst = val1
-	andq %r11, %r11		 # val1 <= 0?
-	jle Npos3		 # if so, goto Npos3:
-	addq %r8, %rax		 # count++
+    rmmovq %r11, (%rsi)  # *dst = val1
+    andq %r11, %r11      # val1 <= 0?
+    jle Npos3          # if so, goto Npos3:
+    addq %r8, %rax       # count++
 Npos3:
-	addq %r13, %rdi		# src++
-	addq %r13, %rsi		# dst++
-	addq %r8, %rbx		# i++
-    rrmovq %rdx, %r14   # avoid modifying len
-    subq %rbx, %r14     # len - i > 0?
-    jg LoopRemaining  # if so, goto LoopRemaining
+    addq %r13, %rdi      # src++
+    addq %r13, %rsi      # dst++
+    addq %r8, %rbx       # i++
+    rrmovq %rdx, %r14    # avoid modifying len
+    subq %rbx, %r14      # len - i > 0?
+    jg LoopRemaining   # if so, goto LoopRemaining
 
 ##################################################################
 # Do not modify the following section of code
@@ -555,8 +555,8 @@ And we can evalute this `2 x 1` loop unrolling version:
     Score	0.0/60.0
 ```
 
-### Version 3
-In this version, we move one more step forward based on Version 2, thus
+### Version 2-2
+In this version, we move one more step forward based on `Version 2-1`, thus
  implementing a version of `2 x 2 unrolling`. The difference compare to
 the previous version is following:
 ```diff
@@ -569,8 +569,8 @@ the previous version is following:
 -    word_t count = 0;
 +    word_t count1 = 0;
 +    word_t count2 = 0;
-    word_t val1;
-    word_t val2;
+    word_t val1 = 0;
+    word_t val2 = 0;
     word_t i = 0;
     for (; i < limit; i += 2) {
         val1 = *src;
@@ -601,3 +601,157 @@ the previous version is following:
 +    return count1;
 }
 ```
+And the difference on ys code compared with last version is:
+```diff
+ncopy:
+...
+
+-    xorq %rax,%rax		# count = 0;
++    xorq %rax,%rax		# count1 = 0;
++    xorq %rbp,%rbp		# count2 = 0;
+
+...
+
+Npos1:
+    andq %r12, %r12     # val2 <= 0?
+    jle Npos2        # if so, goto Npos2
+-    addq %r8, %rax     # count++
++    addq %r8, %rbp     # count2++
+
+Npos2:
+...
+    jg LoopUnRolling # if so, goto LoopUnrolling
++    addq %rbp, %rax    # count1 += count2
+    rrmovq %rdx,%r14    # avoid modifying limit 
+...
+```
+Then the evaluation of this `2 x 2 loop unrolling` is:
+```sh
+  04-Architecture-Labsrc/sim/pipe > make clean; make VERSION=full
+  04-Architecture-Lab/src/sim/pipe > ./benchmark.pl
+        ncopy
+    0	20
+    1	39	39.00
+    ...
+    64  578 9.03
+    Average CPE	11.14
+    Score	0.0/60.0
+```
+This time the CPE is even worse than the `Version 2-1`, counter to the case from
+textbook `section 5-8`. The reason might be in this `ncopy` logic, the decoupled
+addition in this version naturely has little dependency in terms of data, as
+separated by the positive int condition. Besides, current version introduce one more
+addition between the `LoopUnrolling` and `LoopRemaining`.
+
+
+### Version 3
+Next, we expand the unrolling level from 2 to 3, and get a `3 x 1 loop unrolling`
+implementation in C, whose difference compared with `2 x 1 loop unrolling` is:
+```diff
+- /* 2 x 1 loop unrolling */
+- word_t ncopy_2_1_unrolling(word_t *src, word_t *dst, word_t len)
++ /* 3 x 1 loop unrolling */
++ word_t ncopy_3_1_unrolling(word_t *src, word_t *dst, word_t len)
+{
+-    word_t limit = len - 1;
++    word_t limit = len - 2;
+    word_t count = 0;
+    word_t val1 = 0;
+    word_t val2 = 0;
++    word_t val3 = 0;
+    word_t i = 0;
+-    for (; i < limit; i += 2) {
++    for (; i < limit; i += 3) {
+        val1 = *src;
+        val2 = *(src+1);
++        val3 = *(src+2);
+        *dst = val1;
+        *(dst+1) = val2;
++        *(dst+2) = val3;
+        if (val1 > 0)
+            count++;
+        if (val2 > 0)
+            count++;
++        if (val3 > 0)
++            count++;
+
+
+-        src += 2;
+-        dst += 2;
++        src += 3;
++        dst += 3;
+    }
+...
+}
+```
+The performance of `3 x 1 loop unrolling`:
+```sh
+  04-Architecture-Labsrc/sim/pipe > make clean; make VERSION=full
+  04-Architecture-Lab/src/sim/pipe > ./benchmark.pl
+        ncopy
+    0	19
+    1	39	39.00
+    ...
+    64  522 8.16
+    Average CPE	10.29
+    Score	4.3/60.0
+```
+Good achievement, we get score!
+
+### Version 4
+Now we try a `4 x 1 loop unrolling`
+```C
+- /* 3 x 1 loop unrolling */
+- word_t ncopy_3_1_unrolling(word_t *src, word_t *dst, word_t len)
++ /* 4 x 1 loop unrolling */
++ word_t ncopy_4_1_unrolling(word_t *src, word_t *dst, word_t len)
+{
+-    word_t limit = len - 2;
++    word_t limit = len - 3;
+    word_t count = 0;
+    word_t val1 = 0;
+    word_t val2 = 0;
+    word_t val3 = 0;
++    word_t val4 = 0;
+    word_t i = 0;
+ -   for (; i < limit; i += 3) {
+ +   for (; i < limit; i += 4) {
+        val1 = *src;
+        val2 = *(src+1);
+        val3 = *(src+2);
++        val4 = *(src+3);
+        *dst = val1;
+        *(dst+1) = val2;
+        *(dst+2) = val3;
++        *(dst+3) = val4;
+        if (val1 > 0)
+            count++;
+        if (val2 > 0)
+            count++;
+        if (val3 > 0)
+            count++;
++        if (val4 > 0)
++            count++;
+
+
+-        src += 3;
+-        dst += 3;
++        src += 4;
++        dst += 4;
+    }
+...
+}
+```
+The performance of `4 x 1 loop unrolling`:
+```sh
+  04-Architecture-Labsrc/sim/pipe > make clean; make VERSION=full
+  04-Architecture-Lab/src/sim/pipe > ./benchmark.pl
+        ncopy
+    0	19
+    1	39	39.00
+    ...
+    64  480 7.50
+    Average CPE	10.01
+    Score	9.9/60.0
+```
+
