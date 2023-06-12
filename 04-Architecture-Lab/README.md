@@ -526,9 +526,9 @@ LoopRemaining:
     mrmovq (%rdi),  %r11 # val1 = *src
     rmmovq %r11, (%rsi)  # *dst = val1
     andq %r11, %r11      # val1 <= 0?
-    jle Npos3          # if so, goto Npos3:
+    jle NposR          # if so, goto NposR:
     addq %r8, %rax       # count++
-Npos3:
+NposR:
     addq %r13, %rdi      # src++
     addq %r13, %rsi      # dst++
     addq %r8, %rbx       # i++
@@ -700,7 +700,7 @@ Good achievement, we get score!
 
 ### Version 4
 Now we try a `4 x 1 loop unrolling`
-```C
+```diff
 - /* 3 x 1 loop unrolling */
 - word_t ncopy_3_1_unrolling(word_t *src, word_t *dst, word_t len)
 + /* 4 x 1 loop unrolling */
@@ -714,8 +714,8 @@ Now we try a `4 x 1 loop unrolling`
     word_t val3 = 0;
 +    word_t val4 = 0;
     word_t i = 0;
- -   for (; i < limit; i += 3) {
- +   for (; i < limit; i += 4) {
+-    for (; i < limit; i += 3) {
++    for (; i < limit; i += 4) {
         val1 = *src;
         val2 = *(src+1);
         val3 = *(src+2);

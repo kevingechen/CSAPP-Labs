@@ -45,7 +45,7 @@ LoopUnrolling:
 Npos1:
 	andq %r12, %r12		# val2 <= 0?
 	jle Npos2		# if so, goto Npos2:
-	addq %r8, %rax		# count++
+	addq %r8, %rax	    # count++
 Npos2:
 	andq %r13, %r13		# val3 <= 0?
 	jle Npos3		# if so, goto Npos3:

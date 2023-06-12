@@ -59,9 +59,9 @@ LoopRemaining:
     mrmovq (%rdi),  %r11 # val1 = *src
 	rmmovq %r11, (%rsi)	 # *dst = val1
 	andq %r11, %r11		 # val1 <= 0?
-	jle Npos3		 # if so, goto Npos3:
+	jle NposR		 # if so, goto NposR:
 	addq %r8, %rax		 # count++
-Npos3:
+NposR:
 	addq %r13, %rdi		# src++
 	addq %r13, %rsi		# dst++
 	addq %r8, %rbx		# i++
