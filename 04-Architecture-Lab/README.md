@@ -684,6 +684,49 @@ implementation in C, whose difference compared with `2 x 1 loop unrolling` is:
 ...
 }
 ```
+And the difference of ys code compared with `Version 2-1` is :
+```diff
+    # Loop header   
+    rrmovq %rdx,%rcx    # limit = len;  
+-    irmovq $1, %r8  
+-    subq %r8, %rcx     # limit--;  
+-    irmovq $2, %r9  
+-    irmovq $16, %r10    
+-    irmovq $8, %r13
++    irmovq $2, %r8
++    subq %r8, %rcx     # limit -= 2;
++    irmovq $1, %r8     # Reset Constant
++    irmovq $3, %r9
++    irmovq $24, %r10
+    xorq %rax,%rax      # count = 0;
+...
+LoopUnrolling:
+    mrmovq (%rdi),  %r11    # val1 = *src
+    mrmovq 8(%rdi), %r12    # val2 = *(src+1)
++    mrmovq 16(%rdi),%r13    # val3 = *(src+2)
+    rmmovq %r11, (%rsi)     # *dst = val1
+    rmmovq %r12, 8(%rsi)    # *(dst+1) = val2
++    rmmovq %r13,16(%rsi)    # *(dst+2) = val3
+...
+Npos2:  
+-    addq %r10, %rdi     # src += 2  
+-    addq %r10, %rsi     # dst += 2  
+-    addq %r9, %rbx      # i += 2
++    andq %r13, %r13     # val3 <= 0?
++    jle Npos3       # if so, goto Npos3:
++    addq %r8, %rax      # count++
++Npos3:
++    addq %r10, %rdi     # src += 3
++    addq %r10, %rsi     # dst += 3
++    addq %r9, %rbx      # i += 3
+...
+LoopRemaining:  
+-    mrmovq (%rdi),  %r11 # val1 = *src  
++    irmovq $8, %r13      # Set Constant
++    mrmovq (%rdi), %r11  # val1 = *src
+
+```
+
 The performance of `3 x 1 loop unrolling`:
 ```sh
   04-Architecture-Labsrc/sim/pipe > make clean; make VERSION=full
