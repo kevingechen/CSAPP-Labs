@@ -785,6 +785,42 @@ Now we try a `4 x 1 loop unrolling`
 ...
 }
 ```
+And the difference of ys code compared with `Version 3` is :
+```diff
+    # Loop header   
+    rrmovq %rdx,%rcx    # limit = len;  
+-    irmovq $2, %r8  
+-    subq %r8, %rcx      # limit -= 2;   
++    irmovq $3, %r8
++    subq %r8, %rcx      # limit -= 3;
+    irmovq $1, %r8      # Reset Constant    
+-    irmovq $3, %r9  
+-    irmovq $24, %r10
++    irmovq $4, %r9
++    irmovq $32, %r10
+...
+LoopUnrolling:
+    mrmovq (%rdi),  %r11    # val1 = *src
+    mrmovq 8(%rdi), %r12    # val2 = *(src+1)
+    mrmovq 16(%rdi),%r13    # val3 = *(src+2)
++    mrmovq 24(%rdi),%r14    # val4 = *(src+3)
+...
+    rmmovq %r13,16(%rsi)    # *(dst+2) = val3
++    rmmovq %r14,24(%rsi)    # *(dst+3) = val4
+...
+Npos3:  
+-    addq %r10, %rdi     # src += 3  
+-    addq %r10, %rsi     # dst += 3  
+-    addq %r9, %rbx      # i += 3
++    andq %r14, %r14     # val4 <= 0?
++    jle Npos4       # if so, goto Npos4:
++    addq %r8, %rax      # count++
++Npos4:
++    addq %r10, %rdi     # src += 4
++    addq %r10, %rsi     # dst += 4
++    addq %r9, %rbx      # i += 4
+```
+
 The performance of `4 x 1 loop unrolling`:
 ```sh
   04-Architecture-Labsrc/sim/pipe > make clean; make VERSION=full
