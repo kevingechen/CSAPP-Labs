@@ -834,3 +834,44 @@ The performance of `4 x 1 loop unrolling`:
     Score	9.9/60.0
 ```
 
+### Version 5
+Next, we try to implement instruction `iaddq` and update the `ncopy.ys`:
+```diff
+    # Loop header   
+    rrmovq %rdx,%rcx    # limit = len;  
+-    irmovq $3, %r8  
+-    subq %r8, %rcx      # limit -= 3;   
+-    irmovq $1, %r8      # Reset Constant    
+-    irmovq $4, %r9  
+-    irmovq $32, %r10
++    iaddq $-3, %rcx      # limit -= 3;
+...
+LoopUnrolling:
+...
+    jle Npos1            # if so, goto Npos1:   
+-    addq %r8, %rax          # count++   
++    iaddq $1, %rax          # count++
+Npos1:  
+    andq %r12, %r12     # val2 <= 0?    
+    jle Npos2       # if so, goto Npos2:    
+-    addq %r8, %rax      # count++   
++    iaddq $1, %rax          # count++
+Npos2:  
+    andq %r13, %r13     # val3 <= 0?    
+    jle Npos3       # if so, goto Npos3:    
+-    addq %r8, %rax      # count++   
++    iaddq $1, %rax          # count++
+Npos3:  
+    andq %r14, %r14     # val4 <= 0?    
+    jle Npos4       # if so, goto Npos4:    
+-    addq %r8, %rax      # count++   
++    iaddq $1, %rax          # count++
+Npos4:  
+-    addq %r10, %rdi     # src += 4  
+-    addq %r10, %rsi     # dst += 4  
+-    addq %r9, %rbx      # i += 4
++    iaddq $32, %rdi     # src += 4
++    iaddq $32, %rsi     # dst += 4
++    iaddq $4, %rbx      # i += 4
+...
+```
