@@ -874,4 +874,15 @@ Npos4:
 +    iaddq $32, %rsi     # dst += 4
 +    iaddq $4, %rbx      # i += 4
 ...
+    jle NposR        # if so, goto NposR:   
+-    addq %r8, %rax       # count++  
+-NposR:  
+-    addq %r13, %rdi     # src++ 
+-    addq %r13, %rsi     # dst++ 
+-    addq %r8, %rbx      # i++
++    iaddq $1, %rax       # count++
++NposR:
++    iaddq $8, %rdi      # src++
++    iaddq $8, %rsi      # dst++
++    iaddq $1, %rbx      # i++
 ```
