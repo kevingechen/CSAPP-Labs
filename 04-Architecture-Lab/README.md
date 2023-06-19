@@ -835,7 +835,56 @@ The performance of `4 x 1 loop unrolling`:
 ```
 
 ### Version 5
-Next, we try to implement instruction `iaddq` and update the `ncopy.ys`:
+Next, we try to implement instruction `iaddq`:
+```diff
+# Is instruction valid? 
+bool instr_valid = f_icode in   
+    { INOP, IHALT, IRRMOVQ, IIRMOVQ, IRMMOVQ, IMRMOVQ,  
+-      IOPQ, IJXX, ICALL, IRET, IPUSHQ, IPOPQ };
++      IOPQ, IJXX, ICALL, IRET, IPUSHQ, IPOPQ, IIADDQ };
+
+...
+
+# Does fetched instruction require a regid byte?    
+bool need_regids =  
+    f_icode in { IRRMOVQ, IOPQ, IPUSHQ, IPOPQ,  
+-                 IIRMOVQ, IRMMOVQ, IMRMOVQ };
++                 IIRMOVQ, IRMMOVQ, IMRMOVQ, IIADDQ };
+
+# Does fetched instruction require a constant word? 
+bool need_valC =    
+-    f_icode in { IIRMOVQ, IRMMOVQ, IMRMOVQ, IJXX, ICALL };
++    f_icode in { IIRMOVQ, IRMMOVQ, IMRMOVQ, IJXX, ICALL, IIADDQ };
+
+...
+
+################ Decode Stage ######################################    
+## What register should be used as the A source?    
+word d_srcA = [ 
+-    D_icode in { IRRMOVQ, IRMMOVQ, IOPQ, IPUSHQ  } : D_rA;  
++    D_icode in { IRRMOVQ, IRMMOVQ, IOPQ, IPUSHQ, IIADDQ  } : D_rA;
+    D_icode in { IPOPQ, IRET } : RRSP;  
+    1 : RNONE; # Don't need register    
+];  
+## What register should be used as the B source?    
+word d_srcB = [ 
+-    D_icode in { IOPQ, IRMMOVQ, IMRMOVQ  } : D_rB;  
++    D_icode in { IOPQ, IRMMOVQ, IMRMOVQ, IIADDQ  } : D_rB;
+    D_icode in { IPUSHQ, IPOPQ, ICALL, IRET } : RRSP;   
+    1 : RNONE;  # Don't need register   
+];  
+## What register should be used as the E destination?   
+word d_dstE = [ 
+-    D_icode in { IRRMOVQ, IIRMOVQ, IOPQ} : D_rB;    
++    D_icode in { IOPQ, IRMMOVQ, IMRMOVQ, IIADDQ  } : D_rB;
+    D_icode in { IPUSHQ, IPOPQ, ICALL, IRET } : RRSP;   
+    1 : RNONE;  # Don't write any register  
+];
+
+...
+```
+
+Now we update the `ncopy.ys` by replacing `addq` with `iaadq`:
 ```diff
     # Loop header   
     rrmovq %rdx,%rcx    # limit = len;  
