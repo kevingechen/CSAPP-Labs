@@ -882,6 +882,38 @@ word d_dstE = [
 ];
 
 ...
+
+################ Execute Stage #####################################    
+## Select input A to ALU    
+word aluA = [   
+    E_icode in { IRRMOVQ, IOPQ } : E_valA;  
+-    E_icode in { IIRMOVQ, IRMMOVQ, IMRMOVQ } : E_valC;  
++    E_icode in { IIRMOVQ, IRMMOVQ, IMRMOVQ, IIADDQ } : E_valC;
+    E_icode in { ICALL, IPUSHQ } : -8;  
+    E_icode in { IRET, IPOPQ } : 8; 
+    # Other instructions don't need ALU 
+];  
+
+## Select input B to ALU    
+word aluB = [   
+    E_icode in { IRMMOVQ, IMRMOVQ, IOPQ, ICALL,     
+-             IPUSHQ, IRET, IPOPQ } : E_valB;    
++             IPUSHQ, IRET, IPOPQ, IIADDQ } : E_valB;
+    E_icode in { IRRMOVQ, IIRMOVQ } : 0;    
+    # Other instructions don't need ALU 
+];  
+
+## Set the ALU function 
+word alufun = [ 
+    E_icode == IOPQ : E_ifun;   
+    1 : ALUADD; 
+];  
+
+## Should the condition codes be updated?   
+- bool set_cc = E_icode == IOPQ &&    
++ bool set_cc = E_icode in { IOPQ, IIADDQ } &&
+    # State changes only during normal operation    
+    !m_stat in { SADR, SINS, SHLT } && !W_stat in { SADR, SINS, SHLT };
 ```
 
 Now we update the `ncopy.ys` by replacing `addq` with `iaadq`:
