@@ -9,3 +9,4 @@ way.
 - [x] [Bomb Lab](/02-Bomb-Lab)
 - [x] [Attack Lab](/03-Attack-Lab)
 - [ ] [Architecture Lab](/04-Architecture-Lab)
+- [ ] [Cache Lab](/05-Cache-Lab)
