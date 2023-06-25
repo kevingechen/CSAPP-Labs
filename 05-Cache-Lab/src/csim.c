@@ -16,7 +16,7 @@ typedef enum {
 
 typedef struct mem_access {
     char type;
-    char addr[10];
+    char addr[18];
     char  bsize[5];
     unsigned int cb_len;
     CacheBehavior cb_arr[3];
@@ -31,11 +31,42 @@ typedef struct cache_block_node {
 } cache_block;
 
 typedef struct {
+    unsigned int E;
+    cache_block *lru_block;
+} cache_set;
+
+typedef struct {
     unsigned int s;
     unsigned int E;
     unsigned int b;
-    cache_block *lru_block;
-} cache_set;
+    cache_set *lru_cache_sets;
+} cache;
+
+/**
+ * Keep the middle s bits of address value
+ * and shifted to right end
+ * e.g.
+ *   given the binary representation of address
+ *       10110101100010100100101000000001
+ *       |--- tag ----||-- s --||-- b --|
+ *   then return 100100101
+ */
+unsigned long calculateSetIndex(unsigned int s, unsigned int b, unsigned long addr_val) {
+    return ((addr_val) >> b) & ((1ul << s) - 1);
+}
+
+/**
+ * Keep the higher tag bits of address value
+ * and shifted to right end
+ * e.g.
+ *   given the binary representation of address
+ *       10110101100010100100101000000001
+ *       |--- tag ----||-- s --||-- b --|
+ *   then return 10110101100010
+ */
+unsigned long calculateTag(unsigned int s, unsigned int b, unsigned long addr_val) {
+    return addr_val >> (s + b);
+}
 
 /**
  * Parse line by line from trace_file,
@@ -76,8 +107,15 @@ void printMemAccessList(mem_access_node *head) {
     mem_access_node* current = head;
     printf("\nThe sequence of memory access:\n");
     while (current) {
-        printf("\ttype=%c, addr=%s, bsize=%s, cb_len=%d\n",
-                current->type, current->addr, current->bsize, current->cb_len);
+        unsigned long addr_val = strtoul(current->addr, NULL, 16);
+        printf("\ttype=%c, addr=%s(%lu), set_index=%lu, tag=%lu, bsize=%s, cb_len=%d\n",
+                current->type,
+                current->addr,
+                addr_val,
+                calculateSetIndex(4, 4, addr_val),
+                calculateTag( 4, 4, addr_val),
+                current->bsize,
+                current->cb_len);
         current = current->next;
     }
 }
@@ -101,38 +139,124 @@ void freeMemAccessList(mem_access_node* head) {
  * Return the tail (least recently used block pointer)
  */
 cache_block* initLruBlocks(unsigned int E) {
-    cache_block* lru_block = NULL;
-    cache_block* current = NULL;
+    cache_block* mru_block = (cache_block*) malloc(E * sizeof(cache_block));
+    cache_block* left = NULL;
+    cache_block* right = NULL;
+    memset(mru_block, 0, E * sizeof(cache_block));
+
     for (unsigned int i = 0; i < E; i++) {
-        lru_block = (cache_block*) malloc(sizeof(cache_block));
-        memset(lru_block, 0, sizeof(cache_block));
-        if (NULL == current) {
-            current = lru_block;
-        } else {
-            current->next = lru_block;
-            lru_block->prev = current;
-            current = lru_block;
-        }
+        left = mru_block + i;
+        right = mru_block + ((i + 1) % E);
+        left->next = right;
+        right->prev = left;
     }
 
-    return lru_block;
+    return mru_block + (E - 1);
 }
 
 /**
- * Initialize LRU cache by returning an array of cache set
+ * Initialize LRU cache sets
  */
-cache_set* initLruCache(unsigned int S, unsigned int E) {
-    cache_set *lru_cache = (cache_set *) malloc(S * sizeof(cache_set));
-    memset(lru_cache, 0, S * sizeof(cache_set));
+cache_set* initLruCacheSets(unsigned int S, unsigned int E) {
+    cache_set *cache_set_arr = (cache_set *) malloc(S * sizeof(cache_set));
+    memset(cache_set_arr, 0, S * sizeof(cache_set));
     for (unsigned int i = 0; i < S; i++) {
-        lru_cache[i].E = E;
+        cache_set_arr[i].E = E;
         cache_block *lru_block = initLruBlocks(E);
-        lru_cache[i].lru_block = lru_block;
+        cache_set_arr[i].lru_block = lru_block;
     }
+
+    return cache_set_arr;
+}
+
+/**
+ * Initialize LRU cache
+ */
+cache* initLruCache(unsigned int s, unsigned int E, unsigned int b) {
+    unsigned int S = 1 << s;
+    cache* lru_cache = (cache*) malloc(sizeof(cache));
+    memset(lru_cache, 0, sizeof(cache));
+    lru_cache->s = s;
+    lru_cache->E = E;
+    lru_cache->b = b;
+    lru_cache->lru_cache_sets = initLruCacheSets(S, E); 
 
     return lru_cache;
 }
 
+/**
+ * Try to locate the cache block that matches the given tag
+ * and valid_bit is set.
+ * Return NULL if not found, indicating a MISS
+ */
+cache_block* lookupTargetCacheBlock(cache_set *lru_cache_set, unsigned long tag) {
+    cache_block *target = NULL;
+    cache_block *current;
+    unsigned int i;
+    for (i = 0, current = lru_cache_set->lru_block; i < lru_cache_set->E; i++, current = current->next) {
+        if (1 == current->valid_bit && tag == current->tag) {
+            target = current;
+            break;
+        }
+    }
+
+    return target;
+}
+
+/**
+ * Given the cache block hitted, do update on cache data by
+ * least recently used policy.
+ * Return
+ *  0: no eviction
+ *  1: has eviction
+ */
+int updateCacheSet(cache_set *lru_cache_set, cache_block *hit_block, unsigned long tag) {
+    return 0;
+}
+
+/**
+ * append cache behavior to cb_arr
+ */
+void appendCacheBehavior(mem_access_node *current, CacheBehavior cb) {
+    current->cb_arr[current->cb_len++] = cb;
+}
+
+/**
+ * Simulate a single memory access operation,
+ * appending cache behavior
+ */
+void simulateMemAccess(mem_access_node *current, cache_set *lru_cache_set, unsigned long tag) {
+    // lookup target block in lru_cache
+    cache_block *hit_block = lookupTargetCacheBlock(lru_cache_set, tag);
+    // append cache behavior
+    CacheBehavior cb = NULL == hit_block ? MISS : HIT;
+    appendCacheBehavior(current, cb);
+    int isEviction = updateCacheSet(lru_cache_set, hit_block, tag);
+    if (isEviction != 0) {
+        cb = EVICTION;
+        appendCacheBehavior(current, cb);
+    }
+}
+
+/**
+ * Go through each memory access operation,
+ * and simulate the LRU cache behaviors by
+ * filling the cb_arr (cache behavior array)
+ */
+void simulateCacheBehaviors(mem_access_node* mhead,
+                            cache* lru_cache) {
+    for (mem_access_node *current = mhead; current != NULL; current = current->next) {
+        // calculate set index and tag by current->addr, s and b
+        unsigned long addr_val = strtoul(current->addr, NULL, 16);
+        unsigned long sindex = calculateSetIndex(lru_cache->s, lru_cache->b, addr_val);
+        unsigned long tag = calculateTag(lru_cache->s, lru_cache->b, addr_val);
+        // 'M' operation requires one more memory access simulation
+        if ('M' == current->type) {
+            simulateMemAccess(current, lru_cache->lru_cache_sets + sindex, tag);
+        }
+        simulateMemAccess(current, lru_cache->lru_cache_sets + sindex, tag);
+    }
+}
 
 int main(int argc, char *argv[])
 {
@@ -170,25 +294,24 @@ int main(int argc, char *argv[])
     }
 
     // parse trace file
-    mem_access_node *mlist = readMemAccessHistoryFromTraceFile(trace_file);
+    mem_access_node *mhead = readMemAccessHistoryFromTraceFile(trace_file);
 
     // initiate lru_cache
-    // unsigned int S = 1 << s;
-    // cache_set* lru_cache = initLruCache(S, E);
+    cache *lru_cache = initLruCache(s, E, b);
     // evaluate cache actions
-    // simulateCacheBehaviors(mlist, lru_cache, s, E, b);
+    simulateCacheBehaviors(mhead, lru_cache);
 
     if (help_flag)
         printf("Usage: %s [-hv] -s <s> -E <E> -b <b> -t <tracefile>\n", argv[0]);
     if (verbose_flag) {
         // print detailed cache actions for each memory access
         printf("verbose_flag = %d\n", verbose_flag);
-        printMemAccessList(mlist);
+        printMemAccessList(mhead);
         printf("s = %d, E = %d, b = %d, trace_file = %s\n", s, E, b, trace_file);
         printf("hit_count = %d, miss_count = %d, eviction_count = %d\n", hit_count, miss_count, eviction_count);
     }
 
-	freeMemAccessList(mlist);
+	freeMemAccessList(mhead);
     // calculate statistics
     // printSummary(hit_count, miss_count, eviction_count);
     return 0;
