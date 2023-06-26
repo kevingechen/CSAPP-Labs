@@ -14,6 +14,13 @@ typedef enum {
     EVICTION
 } CacheBehavior;
 
+const char* CacheBehaviorNames[] = {
+    "UNKOWN",
+    "hit",
+    "miss",
+    "eviction"
+};
+
 typedef struct mem_access {
     char type;
     char addr[18];
@@ -105,17 +112,12 @@ mem_access_node* readMemAccessHistoryFromTraceFile(const char *file_name) {
 
 void printMemAccessList(mem_access_node *head) {
     mem_access_node* current = head;
-    printf("\nThe sequence of memory access:\n");
+    printf("\nThe sequence of memory access:");
     while (current) {
-        unsigned long addr_val = strtoul(current->addr, NULL, 16);
-        printf("\ttype=%c, addr=%s(%lu), set_index=%lu, tag=%lu, bsize=%s, cb_len=%d\n",
-                current->type,
-                current->addr,
-                addr_val,
-                calculateSetIndex(4, 4, addr_val),
-                calculateTag( 4, 4, addr_val),
-                current->bsize,
-                current->cb_len);
+        printf("\n%c %s,%s", current->type, current->addr, current->bsize);
+        for (unsigned int i = 0; i < current->cb_len; i++) {
+            printf(" %s", CacheBehaviorNames[current->cb_arr[i]]);
+        }
         current = current->next;
     }
 }
@@ -204,6 +206,27 @@ cache_block* lookupTargetCacheBlock(cache_set *lru_cache_set, unsigned long tag)
 }
 
 /**
+ * Do update a cache block by moving the most recent used
+ * block (mru_block) to the head position, which is previous
+ * neighbor of the lru_block in acyclic block list
+ */
+void doUpdateCacheSet(cache_set *lru_cache_set, cache_block *mru_block) {
+    if (mru_block == lru_cache_set->lru_block->next) {
+        return;
+    } else if (mru_block == lru_cache_set->lru_block) {
+        lru_cache_set->lru_block = lru_cache_set->lru_block->prev;
+        return;
+    } else {
+        mru_block->prev->next = mru_block->next;
+        mru_block->next->prev = mru_block->prev;
+        mru_block->next = lru_cache_set->lru_block->next;
+        mru_block->prev = lru_cache_set->lru_block;
+        lru_cache_set->lru_block->next->prev = mru_block;
+        lru_cache_set->lru_block->next = mru_block;
+    }
+}
+
+/**
  * Given the cache block hitted, do update on cache data by
  * least recently used policy.
  * Return
@@ -211,7 +234,17 @@ cache_block* lookupTargetCacheBlock(cache_set *lru_cache_set, unsigned long tag)
  *  1: has eviction
  */
 int updateCacheSet(cache_set *lru_cache_set, cache_block *hit_block, unsigned long tag) {
-    return 0;
+    int has_eviction = 0;
+    cache_block *mru_block = hit_block;
+    if (NULL == mru_block) {
+        mru_block = lru_cache_set->lru_block;
+        has_eviction = mru_block->valid_bit;
+        mru_block->valid_bit = 1;
+        mru_block->tag = tag;
+    }
+    doUpdateCacheSet(lru_cache_set, mru_block);
+
+    return has_eviction;
 }
 
 /**
@@ -305,14 +338,12 @@ int main(int argc, char *argv[])
         printf("Usage: %s [-hv] -s <s> -E <E> -b <b> -t <tracefile>\n", argv[0]);
     if (verbose_flag) {
         // print detailed cache actions for each memory access
-        printf("verbose_flag = %d\n", verbose_flag);
         printMemAccessList(mhead);
-        printf("s = %d, E = %d, b = %d, trace_file = %s\n", s, E, b, trace_file);
-        printf("hit_count = %d, miss_count = %d, eviction_count = %d\n", hit_count, miss_count, eviction_count);
     }
 
 	freeMemAccessList(mhead);
     // calculate statistics
+    printf("\n\nhit_count = %d, miss_count = %d, eviction_count = %d\n", hit_count, miss_count, eviction_count);
     // printSummary(hit_count, miss_count, eviction_count);
     return 0;
 }
