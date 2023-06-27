@@ -15,7 +15,7 @@ typedef enum {
 } CacheBehavior;
 
 const char* CacheBehaviorNames[] = {
-    "UNKOWN",
+    "unknown",
     "hit",
     "miss",
     "eviction"
@@ -112,16 +112,43 @@ mem_access_node* readMemAccessHistoryFromTraceFile(const char *file_name) {
 
 void printMemAccessList(mem_access_node *head) {
     mem_access_node* current = head;
-    printf("\nThe sequence of memory access:");
     while (current) {
-        printf("\n%c %s,%s", current->type, current->addr, current->bsize);
+        printf("%c %s,%s", current->type, current->addr, current->bsize);
         for (unsigned int i = 0; i < current->cb_len; i++) {
             printf(" %s", CacheBehaviorNames[current->cb_arr[i]]);
         }
+        printf("\n");
         current = current->next;
     }
 }
 
+/**
+ * update cache behavior statistics
+ */
+void updateStatistics(mem_access_node *head,
+                      unsigned int *hit_count_ptr,
+                      unsigned int *miss_count_ptr,
+                      unsigned int *eviction_count_ptr) {
+    mem_access_node* current = head;
+    while (current) {
+        for (unsigned int i = 0; i < current->cb_len; i++) {
+            switch (current->cb_arr[i]) {
+                case HIT:
+                    (*hit_count_ptr)++;
+                    break;
+                case MISS:
+                    (*miss_count_ptr)++;
+                    break;
+                case EVICTION:
+                    (*eviction_count_ptr)++;
+                    break;
+                default:
+                    break;
+            }
+        }
+        current = current->next;
+    }
+}
 /**
  * Function to free the memory occupied by the linked list Function
  * to free the memory occupied by the linked list
@@ -326,24 +353,27 @@ int main(int argc, char *argv[])
         }
     }
 
+    if (help_flag) {
+        printf("Usage: %s [-hv] -s <s> -E <E> -b <b> -t <tracefile>\n", argv[0]);
+        return 0;
+    }
+
     // parse trace file
     mem_access_node *mhead = readMemAccessHistoryFromTraceFile(trace_file);
 
     // initiate lru_cache
     cache *lru_cache = initLruCache(s, E, b);
-    // evaluate cache actions
+    // evaluate cache behaviors
     simulateCacheBehaviors(mhead, lru_cache);
+    // update statistics
+    updateStatistics(mhead, &hit_count, &miss_count, &eviction_count);
 
-    if (help_flag)
-        printf("Usage: %s [-hv] -s <s> -E <E> -b <b> -t <tracefile>\n", argv[0]);
     if (verbose_flag) {
-        // print detailed cache actions for each memory access
+        // print detailed cache behaviors for each memory access
         printMemAccessList(mhead);
     }
 
 	freeMemAccessList(mhead);
-    // calculate statistics
-    printf("\n\nhit_count = %d, miss_count = %d, eviction_count = %d\n", hit_count, miss_count, eviction_count);
-    // printSummary(hit_count, miss_count, eviction_count);
+    printSummary(hit_count, miss_count, eviction_count);
     return 0;
 }
