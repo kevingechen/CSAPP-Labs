@@ -12,6 +12,14 @@
 
 int is_transpose(int M, int N, int A[N][M], int B[M][N]);
 
+unsigned long calculateSetIndex(unsigned int s, unsigned int b, unsigned long addr_val) {
+    return ((addr_val) >> b) & ((1ul << s) - 1);
+}
+
+unsigned long calculateTag(unsigned int s, unsigned int b, unsigned long addr_val) {
+    return addr_val >> (s + b);
+}
+
 /* 
  * transpose_submit - This is the solution transpose function that you
  *     will be graded on for Part B of the assignment. Do not change
@@ -23,40 +31,36 @@ char transpose_submit_desc[] = "Transpose submission";
 void transpose_submit(int M, int N, int A[N][M], int B[M][N])
 {
     int i, j, tmp;
-    int k, tmp_diagnol;
-    if (M == 32) {
-        for (k = 0; k < M / 8; k++) {
-            for (i = 0; i < N; i++) {
-                for (j = 8*k; j < 8*k + 8; j++) {
-                    if (i == j) {
-                        tmp_diagnol = A[i][j];
-                    } else {
-                        tmp = A[i][j];
-                        B[j][i] = tmp;
-                    }
-                }
-                if (i >= 8*k && i < 8*k + 8) {
-                    B[i][i] = tmp_diagnol;
-                }
-            }    
-        }
-    } else if (M == 64) {
-        for (k = 0; k < M / 4; k++) {
-            for (i = 0; i < N; i++) {
-                for (j = 4*k; j < 4*k + 4; j++) {
-                    tmp = A[i][j];
-                    B[j][i] = tmp;
-                }
-            }    
-        }
-    } else {
-        for (i = 0; i < N; i++) {
-            for (j = 0; j < M; j++) {
-                tmp = A[i][j];
-                B[j][i] = tmp;
-            }
-        }    
+    char file_name[30];
+    unsigned long addr_A, addr_B, set_A, set_B, tag_A, tag_B;
+    sprintf(file_name, "addr_conflicts_%d_%d.txt", M, N);
+    FILE *out_file = fopen(file_name, "w");
+    // Check if the file was successfully opened
+    if (out_file == NULL) {
+        printf("Failed to open the file.\n");
+        return;
     }
+
+    for (i = 0; i < N; i++) {
+        for (j = 0; j < M; j++) {
+            tmp = A[i][j];
+            B[j][i] = tmp;
+            addr_A = (unsigned long) &A[i][j];
+            addr_B = (unsigned long) &B[j][i];
+            set_A = calculateSetIndex(5, 5, addr_A);
+            tag_A = calculateTag(5, 5, addr_A);
+            set_B = calculateSetIndex(5, 5, addr_B);
+            tag_B = calculateTag(5, 5, addr_B);
+            fprintf(out_file, "info between A[%d][%d] and B[%d][%d], set_A=%lu, set_B=%lu, tag_A=%lu, tag_B=%lu\n",
+                    i,j,
+                    j,i,
+                    set_A, set_B,
+                    tag_A, tag_B);
+            
+        }
+    }    
+
+    fclose(out_file);
 
 }
 
