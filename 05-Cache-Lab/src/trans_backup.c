@@ -51,7 +51,7 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
             tag_A = calculateTag(5, 5, addr_A);
             set_B = calculateSetIndex(5, 5, addr_B);
             tag_B = calculateTag(5, 5, addr_B);
-            fprintf(out_file, "info between A[%d][%d] and B[%d][%d], set_A=%lu, set_B=%lu, tag_A=%lu, tag_B=%lu\n",
+            fprintf(out_file, "info between A[%d][%d] and B[%d][%d], set_A=%lu, tag_A=%lu, set_B=%lu, tag_B=%lu\n",
                     i,j,
                     j,i,
                     set_A, set_B,
