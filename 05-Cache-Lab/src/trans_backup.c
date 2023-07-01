@@ -33,7 +33,7 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
     int i, j, tmp;
     char file_name[30];
     unsigned long addr_A, addr_B, set_A, set_B, tag_A, tag_B;
-    sprintf(file_name, "addr_conflicts_%d_%d.txt", M, N);
+    sprintf(file_name, "cache_params_%d_%d.txt", M, N);
     FILE *out_file = fopen(file_name, "w");
     // Check if the file was successfully opened
     if (out_file == NULL) {
