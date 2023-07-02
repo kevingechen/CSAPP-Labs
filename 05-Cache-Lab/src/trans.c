@@ -12,6 +12,26 @@
 
 int is_transpose(int M, int N, int A[N][M], int B[M][N]);
 
+void transpose_32_32_helper(int M, int N, int A[N][M], int B[M][N]) {
+    int i, j, tmp;
+    int k, tmp_diagnol;
+    for (k = 0; k < M / 8; k++) {
+        for (i = 0; i < N; i++) {
+            for (j = 8*k; j < 8*k + 8; j++) {
+                if (i == j) {
+                    tmp_diagnol = A[i][j];
+                } else {
+                    tmp = A[i][j];
+                    B[j][i] = tmp;
+                }
+            }
+            if (i >= 8*k && i < 8*k + 8) {
+                B[i][i] = tmp_diagnol;
+            }
+        }    
+    }
+
+}
 /* 
  * transpose_submit - This is the solution transpose function that you
  *     will be graded on for Part B of the assignment. Do not change
@@ -23,23 +43,9 @@ char transpose_submit_desc[] = "Transpose submission";
 void transpose_submit(int M, int N, int A[N][M], int B[M][N])
 {
     int i, j, tmp;
-    int k, tmp_diagnol;
+    int k;
     if (M == 32) {
-        for (k = 0; k < M / 8; k++) {
-            for (i = 0; i < N; i++) {
-                for (j = 8*k; j < 8*k + 8; j++) {
-                    if (i == j) {
-                        tmp_diagnol = A[i][j];
-                    } else {
-                        tmp = A[i][j];
-                        B[j][i] = tmp;
-                    }
-                }
-                if (i >= 8*k && i < 8*k + 8) {
-                    B[i][i] = tmp_diagnol;
-                }
-            }    
-        }
+        transpose_32_32_helper(M, N, A, B);
     } else if (M == 64) {
         for (k = 0; k < M / 4; k++) {
             for (i = 0; i < N; i++) {
