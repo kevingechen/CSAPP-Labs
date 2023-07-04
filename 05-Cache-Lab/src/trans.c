@@ -32,6 +32,10 @@ void transpose_32_32_helper(int M, int N, int A[N][M], int B[M][N]) {
     }
 
 }
+
+void transpose_64_64_helper(int M, int N, int A[N][M], int B[M][N]) {
+}
+
 /* 
  * transpose_submit - This is the solution transpose function that you
  *     will be graded on for Part B of the assignment. Do not change
