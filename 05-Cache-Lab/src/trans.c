@@ -34,6 +34,24 @@ void transpose_32_32_helper(int M, int N, int A[N][M], int B[M][N]) {
 }
 
 void transpose_64_64_helper(int M, int N, int A[N][M], int B[M][N]) {
+    int i, j, tmp;
+    int k, tmp_diagnol;
+    for (k = 0; k < M / 8; k++) {
+        for (i = 0; i < N; i++) {
+            for (j = 8*k; j < 8*k + 8; j++) {
+                if (i == j) {
+                    tmp_diagnol = A[i][j];
+                } else {
+                    tmp = A[i][j];
+                    B[j][i] = tmp;
+                }
+            }
+            if (i >= 8*k && i < 8*k + 8) {
+                B[i][i] = tmp_diagnol;
+            }
+        }    
+    }
+
 }
 
 /* 
