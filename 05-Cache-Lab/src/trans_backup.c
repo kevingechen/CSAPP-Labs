@@ -54,8 +54,8 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
             fprintf(out_file, "info between A[%d][%d] and B[%d][%d], set_A=%lu, tag_A=%lu, set_B=%lu, tag_B=%lu\n",
                     i,j,
                     j,i,
-                    set_A, set_B,
-                    tag_A, tag_B);
+                    set_A, tag_A,
+                    set_B, tag_B);
             
         }
     }    

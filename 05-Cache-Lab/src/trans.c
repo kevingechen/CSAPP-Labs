@@ -36,9 +36,9 @@ void transpose_32_32_helper(int M, int N, int A[N][M], int B[M][N]) {
 void transpose_64_64_helper(int M, int N, int A[N][M], int B[M][N]) {
     int i, j, tmp;
     int k, tmp_diagnol;
-    for (k = 0; k < M / 8; k++) {
+    for (k = 0; k < M / 4; k++) {
         for (i = 0; i < N; i++) {
-            for (j = 8*k; j < 8*k + 8; j++) {
+            for (j = 4*k; j < 4*k + 4; j++) {
                 if (i == j) {
                     tmp_diagnol = A[i][j];
                 } else {
@@ -46,7 +46,7 @@ void transpose_64_64_helper(int M, int N, int A[N][M], int B[M][N]) {
                     B[j][i] = tmp;
                 }
             }
-            if (i >= 8*k && i < 8*k + 8) {
+            if (i >= 4*k && i < 4*k + 4) {
                 B[i][i] = tmp_diagnol;
             }
         }    
@@ -65,18 +65,10 @@ char transpose_submit_desc[] = "Transpose submission";
 void transpose_submit(int M, int N, int A[N][M], int B[M][N])
 {
     int i, j, tmp;
-    int k;
     if (M == 32) {
         transpose_32_32_helper(M, N, A, B);
     } else if (M == 64) {
-        for (k = 0; k < M / 4; k++) {
-            for (i = 0; i < N; i++) {
-                for (j = 4*k; j < 4*k + 4; j++) {
-                    tmp = A[i][j];
-                    B[j][i] = tmp;
-                }
-            }    
-        }
+        transpose_64_64_helper(M, N, A, B);
     } else {
         for (i = 0; i < N; i++) {
             for (j = 0; j < M; j++) {
