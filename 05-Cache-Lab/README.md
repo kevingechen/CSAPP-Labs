@@ -11,4 +11,9 @@ trans.c      A matrix transpose function to optimize cache behavior
 In this task, we will implement an LRU cache simulator from scratch.  The input
 is a polished version of valgrind trace file, having the format:
 ```
+I 0400d7d4,8
+ M 0421c7f0,4
+ L 04f6b868,8
+ S 7ff0005c8,8
 ```
+Each line denotes one or two memory accesses.
