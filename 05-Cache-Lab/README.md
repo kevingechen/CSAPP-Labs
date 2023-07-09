@@ -16,4 +16,7 @@ I 0400d7d4,8
  L 04f6b868,8
  S 7ff0005c8,8
 ```
-Each line denotes one or two memory accesses.
+Each line denotes one or two memory accesses. The format of each line is
+```
+[space]operation address,size
+```
