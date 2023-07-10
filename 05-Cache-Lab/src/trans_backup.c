@@ -31,12 +31,14 @@ char transpose_submit_desc[] = "Transpose submission";
 void transpose_submit(int M, int N, int A[N][M], int B[M][N])
 {
     int i, j, tmp;
-    char file_name[30];
+    char cache_params_file_name[30],conflicts_file_name[30];
     unsigned long addr_A, addr_B, set_A, set_B, tag_A, tag_B;
-    sprintf(file_name, "cache_params_%d_%d.txt", M, N);
-    FILE *out_file = fopen(file_name, "w");
+    sprintf(cache_params_file_name, "cache_params_%d_%d.tmp", M, N);
+    sprintf(conflicts_file_name, "cache_conflicts_%d_%d.tmp", M, N);
+    FILE *out_cache_params = fopen(cache_params_file_name, "w");
+    FILE *out_conflicts = fopen(conflicts_file_name, "w");
     // Check if the file was successfully opened
-    if (out_file == NULL) {
+    if (out_cache_params == NULL || out_conflicts == NULL) {
         printf("Failed to open the file.\n");
         return;
     }
@@ -51,16 +53,24 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
             tag_A = calculateTag(5, 5, addr_A);
             set_B = calculateSetIndex(5, 5, addr_B);
             tag_B = calculateTag(5, 5, addr_B);
-            fprintf(out_file, "info between A[%d][%d] and B[%d][%d], set_A=%lu, tag_A=%lu, set_B=%lu, tag_B=%lu\n",
+            fprintf(out_cache_params, "cache params at A[%d][%d] and B[%d][%d], set_A=%lu, tag_A=%lu, set_B=%lu, tag_B=%lu\n",
                     i,j,
                     j,i,
                     set_A, tag_A,
                     set_B, tag_B);
-            
+            if (set_A == set_B && tag_A != tag_B) {
+            fprintf(out_conflicts, "conflict between A[%d][%d] and B[%d][%d], set_A=%lu, tag_A=%lu, set_B=%lu, tag_B=%lu\n",
+                    i,j,
+                    j,i,
+                    set_A, tag_A,
+                    set_B, tag_B);
+
+            }
         }
     }    
 
-    fclose(out_file);
+    fclose(out_cache_params);
+    fclose(out_conflicts);
 
 }
 
