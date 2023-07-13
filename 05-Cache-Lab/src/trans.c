@@ -35,23 +35,27 @@ void transpose_32_32_helper(int M, int N, int A[N][M], int B[M][N]) {
 
 void transpose_64_64_helper(int M, int N, int A[N][M], int B[M][N]) {
     int i, j, tmp;
-    int k, kx, l, lx, tmp_conflict;
+    int k, kx, l, lx, tmp_diagnol, tmp_conflict;
     for (l = 0; l < M / 4; l++) {
-        for (k = 0; k < N / 4; k++) {
-            for (kx = 0; kx < 4; kx++) {
-                i = 4 * k + kx;
-                for (lx = 0; lx < 4; lx++) {
+        for (k = 0; k < N / 8; k++) {
+            for (kx = 0; kx < 8; kx++) {
+                i = 8 * k + kx;
+                for (lx = 3; lx >= 0; lx--) {
                     j = 4 * l + lx;
-                    if (i == j || i+4 == j || i == j+4) {
+                    if (i == j) {
+                        tmp_diagnol = A[i][j];
+                    } else if ( i+4 == j || i == j+4) {
                         tmp_conflict = A[i][j];
                     } else {
                         tmp = A[i][j];
                         B[j][i] = tmp;
                     }
                 }
-                for (lx = 0; lx < 4; lx++) {
+                for (lx = 3; lx >= 0; lx--) {
                     j = 4 * l + lx;
-                    if (i == j || i+4 == j || i == j+4) {
+                    if (i == j) {
+                        B[j][i] = tmp_diagnol;
+                    } else if (i+4 == j || i == j+4) {
                         B[j][i] = tmp_conflict;
                     }
                 }
