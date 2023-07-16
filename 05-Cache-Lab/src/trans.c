@@ -57,20 +57,31 @@ void transpose_64_64_helper(int M, int N, int A[N][M], int B[M][N]) {
     for (bn = 0; bn < N / 8; bn++) {
         for (bm = 0; bm < M / 8; bm++) {
 
-            for (i = 8*bn; i < 8*bn + 8; i++) {
+            for (i = 8*bn; i < 8*bn + 4; i++) {
                 for (j = 8*bm; j < 8*bm + 4; j++) {
                     if (is_conflict_64_64(i, j)) continue;
                     tmp = A[i][j];
                     B[j][i] = tmp;
                 }
+                for (j = 8*bm; j < 8*bm + 4; j++) {
+                    if (is_conflict_64_64(i+4, j)) continue;
+                    tmp = A[i+4][j];
+                    B[j][i+4] = tmp;
+                }
             }    
 
-            for (i = 8*bn + 7; i >= 8*bn; i--) {
+            for (i = 8*bn + 7; i >= 8*bn + 4; i--) {
                 for (j = 8*bm + 4; j < 8*bm + 8; j++) {
                     if (is_conflict_64_64(i, j)) continue;
                     tmp = A[i][j];
                     B[j][i] = tmp;
                 }
+                for (j = 8*bm + 4; j < 8*bm + 8; j++) {
+                    if (is_conflict_64_64(i-4, j)) continue;
+                    tmp = A[i-4][j];
+                    B[j][i-4] = tmp;
+                }
+
             }    
 
         }
