@@ -34,75 +34,61 @@ void transpose_32_32_helper(int M, int N, int A[N][M], int B[M][N]) {
 
 }
 
-bool is_conflict_64_64(int i, int j) {
-    if (i == j) {
-        return true;
-    }
-    int ix = i / 4;
-    bool isEvenIx = (ix % 2) == 0;
-    if (isEvenIx && i+4 == j) {
-        return true;
-    }
-    if (!isEvenIx && i == j+4) {
-        return true;
-    }
-
-    return false;
-}
-
 void transpose_64_64_helper(int M, int N, int A[N][M], int B[M][N]) {
     int i, j, tmp;
     int bn, bm;
-    int tmp_11, tmp_12, tmp_21, tmp_22;
+    int tmp_up, tmp_down;
     for (bn = 0; bn < N / 8; bn++) {
         for (bm = 0; bm < M / 8; bm++) {
 
             for (i = 8*bn; i < 8*bn + 4; i++) {
                 for (j = 8*bm; j < 8*bm + 4; j++) {
-                    if (is_conflict_64_64(i, j)) continue;
+                    if (i == j) {
+                        tmp_up = A[i][j];
+                        continue;
+                    }
                     tmp = A[i][j];
                     B[j][i] = tmp;
                 }
                 for (j = 8*bm; j < 8*bm + 4; j++) {
-                    if (is_conflict_64_64(i+4, j)) continue;
+                    if (i == j) {
+                        tmp_down = A[i+4][j];
+                        continue;
+                    }
                     tmp = A[i+4][j];
                     B[j][i+4] = tmp;
                 }
+                if (bn == bm) {
+                    B[i][i] = tmp_up;
+                    B[i][i+4] = tmp_down;
+                }
             }    
 
-            for (i = 8*bn + 7; i >= 8*bn + 4; i--) {
+            for (i = 8*bn + 4; i < 8*bn + 8; i++) {
                 for (j = 8*bm + 4; j < 8*bm + 8; j++) {
-                    if (is_conflict_64_64(i, j)) continue;
+                    if (i == j) {
+                        tmp_down = A[i][j];
+                        continue;
+                    }
+
                     tmp = A[i][j];
                     B[j][i] = tmp;
                 }
                 for (j = 8*bm + 4; j < 8*bm + 8; j++) {
-                    if (is_conflict_64_64(i-4, j)) continue;
+                    if (i == j) {
+                        tmp_up = A[i-4][j];
+                        continue;
+                    }
+
                     tmp = A[i-4][j];
                     B[j][i-4] = tmp;
                 }
-
+                if (bn == bm) {
+                    B[i][i] = tmp_down;
+                    B[i][i-4] = tmp_up;
+                }
             }    
 
-        }
-    }
-
-
-    // handle diagnals and square conflicts
-    for (bn = 0; bn < N / 8; bn++) {
-        for (tmp = 0; tmp < 4; tmp++) {
-            i = 8*bn + tmp;
-            j = i;
-
-            tmp_11 = A[i][j];
-            tmp_12 = A[i][j+4];
-            tmp_21 = A[i+4][j];
-            tmp_22 = A[i+4][j+4];
-
-            B[j][i] = tmp_11;
-            B[j][i+4] = tmp_21;
-            B[j+4][i] = tmp_12;
-            B[j+4][i+4] = tmp_22;
         }
     }
 
