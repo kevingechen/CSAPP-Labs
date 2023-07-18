@@ -38,6 +38,7 @@ void transpose_64_64_helper(int M, int N, int A[N][M], int B[M][N]) {
     int i, j, tmp;
     int bn, bm;
     int tmp_up, tmp_down;
+    int t4, t5, t6, t7;
     for (bn = 0; bn < N / 8; bn++) {
         for (bm = 0; bm < M / 8; bm++) {
 
@@ -49,6 +50,12 @@ void transpose_64_64_helper(int M, int N, int A[N][M], int B[M][N]) {
                     }
                     tmp = A[i][j];
                     B[j][i] = tmp;
+                }
+                if (i == 8*bn) {
+                    t4 = A[i][8*bm+4];
+                    t5 = A[i][8*bm+5];
+                    t6 = A[i][8*bm+6];
+                    t7 = A[i][8*bm+7];
                 }
                 for (j = 8*bm; j < 8*bm + 4; j++) {
                     if (i == j) {
@@ -74,18 +81,28 @@ void transpose_64_64_helper(int M, int N, int A[N][M], int B[M][N]) {
                     tmp = A[i][j];
                     B[j][i] = tmp;
                 }
-                for (j = 8*bm + 4; j < 8*bm + 8; j++) {
-                    if (i == j) {
-                        tmp_up = A[i-4][j];
-                        continue;
-                    }
+                if (i-4 == 8*bn) {
+                    B[8*bm+4][i-4] = t4;
+                    B[8*bm+5][i-4] = t5;
+                    B[8*bm+6][i-4] = t6;
+                    B[8*bm+7][i-4] = t7;
+                } else {
+                    for (j = 8*bm + 4; j < 8*bm + 8; j++) {
+                        if (i == j) {
+                            tmp_up = A[i-4][j];
+                            continue;
+                        }
 
-                    tmp = A[i-4][j];
-                    B[j][i-4] = tmp;
+                        tmp = A[i-4][j];
+                        B[j][i-4] = tmp;
+                    }
                 }
+
                 if (bn == bm) {
                     B[i][i] = tmp_down;
-                    B[i][i-4] = tmp_up;
+                    if (i-4 != 8*bn) {
+                        B[i][i-4] = tmp_up;
+                    }
                 }
             }    
 
