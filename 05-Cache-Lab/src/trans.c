@@ -111,6 +111,17 @@ void transpose_64_64_helper(int M, int N, int A[N][M], int B[M][N]) {
 
 }
 
+void transpose_61_67_helper(int M, int N, int A[N][M], int B[M][N]) {
+    int i, j, tmp;
+    for (i = 0; i < N; i++) {
+        for (j = 0; j < M; j++) {
+            tmp = A[i][j];
+            B[j][i] = tmp;
+        }
+    }
+
+}
+
 /* 
  * transpose_submit - This is the solution transpose function that you
  *     will be graded on for Part B of the assignment. Do not change
@@ -126,6 +137,8 @@ void transpose_submit(int M, int N, int A[N][M], int B[M][N])
         transpose_32_32_helper(M, N, A, B);
     } else if (M == 64) {
         transpose_64_64_helper(M, N, A, B);
+    } else if (N == 67 && M == 61) {
+        transpose_61_67_helper(M, N, A, B);
     } else {
         for (i = 0; i < N; i++) {
             for (j = 0; j < M; j++) {
