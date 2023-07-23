@@ -24,3 +24,6 @@ The operation field denotes the type of memory access: "I" denotes an instructio
 
 
 ## Task 2
+In this task, we are going to optimize a matrix transpose function (e.g. B[M][N] = 
+transpose(A[N][M])) in order to minimize the total amount of cache misses.
+The performance are evaluated in three cases of different matric sizes, respectively (M=32, N=32), (M=64, N=64) and (M=61, N=67).
