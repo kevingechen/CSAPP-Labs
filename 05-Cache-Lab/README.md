@@ -20,7 +20,9 @@ Each line denotes one or two memory accesses. The format of each line is
 ```
 [space]operation address,size
 ```
-The operation field denotes the type of memory access: "I" denotes an instruction load, "L" a data load, "S" a data store, and "M" a data modification.
+The operation field denotes the type of memory access: "I" denotes an instruction load,
+"L" a data load, "S" a data store, and "M" a data modification. Each memory access may
+affect the status of cache data.
 
 
 ## Task 2
