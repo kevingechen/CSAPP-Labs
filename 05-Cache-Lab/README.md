@@ -23,6 +23,7 @@ Each line denotes one or two memory accesses. The format of each line is
 The operation field denotes the type of memory access: "I" denotes an instruction load,
 "L" a data load, "S" a data store, and "M" a data modification. Each memory access may
 affect the status of cache data.
+![General Cache Organization](static/general_cache_org.png)
 
 
 ## Task 2
