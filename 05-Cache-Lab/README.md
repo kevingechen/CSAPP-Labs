@@ -24,7 +24,7 @@ The operation field denotes the type of memory access: "I" denotes an instructio
 "L" a data load, "S" a data store, and "M" a data modification. Each memory access may
 affect the status of cache data. The following figure show the general organization of
 cache memory.
-![General Cache Organization](static/general_cache_org.png)
+![General Cache Organization](05-Cache-Lab/static/general_cache_org.png)
 Cache memory are divided to a number $S$ of sets. Each set consists of $E$ fixed-size
 blocks. (or 'lines' in the textbook). Each block has a valid bit, a multi-bit tag field
 and a data of $B$ bytes holding continuous memory address. An operation on a given address
