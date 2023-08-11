@@ -174,6 +174,17 @@ void eval(char *cmdline)
     bg = parseline(buf, argv);
     if (argv[0] == NULL)
         return; /* Ignore empty lines */
+
+    if (!builtin_cmd(argv)) {
+        if ((pid = Fork()) == 0) { /* Child runs the job */
+            if (execve(argv[0], argv, environ) < 0) {
+                printf("%s: Command not found.\n", argv[0]);
+                exit(0);
+            }
+
+            /* Parent waits for the forground job to terminate */
+        }
+    }
     return;
 }
 
