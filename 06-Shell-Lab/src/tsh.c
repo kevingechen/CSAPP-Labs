@@ -240,7 +240,7 @@ int parseline(const char *cmdline, char **argv)
 
     /* should the job run in the background? */
     if ((bg = (*argv[argc-1] == '&')) != 0) {
-	argv[--argc] = NULL;
+        argv[--argc] = NULL;
     }
     return bg;
 }
@@ -258,6 +258,10 @@ int builtin_cmd(char **argv)
     }
     if (!strcmp("jobs", cmd)) {
         listjobs(jobs);
+        return 1;
+    }
+    if (!strcmp("quit", cmd)) {
+        // TODO quit from the process
         return 1;
     }
     return 0;     /* not a builtin command */
