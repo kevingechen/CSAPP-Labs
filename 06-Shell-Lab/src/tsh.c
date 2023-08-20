@@ -252,16 +252,16 @@ int parseline(const char *cmdline, char **argv)
 int builtin_cmd(char **argv) 
 {
     char *cmd = argv[0];
+    if (!strcmp("quit", cmd)) /* quit command */
+        exit(0);
+    if (!strcmp("&", cmd))    /* ignore singleton & */
+        return 1;
     if (!strcmp("bg", cmd) || !strcmp("fg", cmd)) {
         do_bgfg(argv);
         return 1;
     }
     if (!strcmp("jobs", cmd)) {
         listjobs(jobs);
-        return 1;
-    }
-    if (!strcmp("quit", cmd)) {
-        // TODO quit from the process
         return 1;
     }
     return 0;     /* not a builtin command */
