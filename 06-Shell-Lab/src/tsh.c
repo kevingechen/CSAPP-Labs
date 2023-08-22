@@ -181,15 +181,13 @@ void eval(char *cmdline)
                 printf("%s: Command not found.\n", argv[0]);
                 exit(0);
             }
-        } else if (pid > 0) {
-            /* Parent waits for the forground job to terminate */
-            if (!bg) {
-                int status;
-                if (waitpid(pid, &status, 0) < 0)
-                    unix_error("watifg: waitpid error");
-            }
-        } else {
-            unix_error("fork error");
+        }
+
+        /* Parent waits for the forground job to terminate */
+        if (!bg) {
+            int status;
+            if (waitpid(pid, &status, 0) < 0)
+                unix_error("watifg: waitpid error");
         }
 
     }
