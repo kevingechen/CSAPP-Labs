@@ -447,7 +447,7 @@ int pid2jid(pid_t pid)
     if (pid < 1)
 	return 0;
     for (i = 0; i < MAXJOBS; i++)
-	if (jobs[i].pid == pid) {
+        if (jobs[i].pid == pid) {
             return jobs[i].jid;
         }
     return 0;
