@@ -177,6 +177,8 @@ void eval(char *cmdline)
 
     if (!builtin_cmd(argv)) {
         if ((pid = Fork()) == 0) { /* Child runs the job */
+            setpgid(0, 0);
+            addjob(jobs, getpid(), (bg ? BG : FG), cmdline);
             if (execve(argv[0], argv, environ) < 0) {
                 printf("%s: Command not found.\n", argv[0]);
                 exit(0);
@@ -185,9 +187,7 @@ void eval(char *cmdline)
 
         /* Parent waits for the forground job to terminate */
         if (!bg) {
-            int status;
-            if (waitpid(pid, &status, 0) < 0)
-                unix_error("watifg: waitpid error");
+            waitfg(pid);
         }
 
     }
@@ -286,6 +286,10 @@ void do_bgfg(char **argv)
  */
 void waitfg(pid_t pid)
 {
+    int status;
+    if (waitpid(pid, &status, 0) < 0)
+        unix_error("watifg: waitpid error");
+
     return;
 }
 
