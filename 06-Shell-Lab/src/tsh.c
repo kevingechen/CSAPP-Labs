@@ -286,10 +286,8 @@ void do_bgfg(char **argv)
  */
 void waitfg(pid_t pid)
 {
-    int status;
-    if (waitpid(pid, &status, 0) < 0)
-        unix_error("watifg: waitpid error");
-
+    while (1)
+        sleep(1);
     return;
 }
 
@@ -306,6 +304,11 @@ void waitfg(pid_t pid)
  */
 void sigchld_handler(int sig) 
 {
+    int status;
+    if (waitpid(pid, &status, 0) < 0)
+        unix_error("watifg: waitpid error");
+
+
     return;
 }
 
