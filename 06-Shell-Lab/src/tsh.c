@@ -319,6 +319,7 @@ void sigchld_handler(int sig)
  */
 void sigint_handler(int sig) 
 {
+    /* send SIGINT signal to all processes in foreground group */
     return;
 }
 
