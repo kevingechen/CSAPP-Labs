@@ -330,6 +330,7 @@ void sigint_handler(int sig)
  */
 void sigtstp_handler(int sig) 
 {
+    /* send SIGTSTP signal to all processes in foreground group */
     return;
 }
 
