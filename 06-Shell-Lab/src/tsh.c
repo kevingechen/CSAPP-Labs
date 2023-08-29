@@ -319,7 +319,23 @@ void sigchld_handler(int sig)
  */
 void sigint_handler(int sig) 
 {
-    /* send SIGINT signal to all processes in foreground group */
+    int olderrno = errno;
+    sigset_t mask_all, prev_mask;
+
+    sigfillset(&mask_all);
+    Sigprocmask(SIG_BLOCK, &mask_all, &prev_mask); /* Block sigs, to read jobs safely */
+
+    /* obtain the foreground job's pid,
+     * which is also the pgid of its group
+     */
+    pid_t foreground_pid = fgpid(jobs);
+    if (foreground_pid > 0) {          /* affect only when foreground exists */
+        Kill(-foreground_pid, SIGINT); /* send SIGINT to foreground job and its descendents */
+    }
+
+    Sigprocmask(SIG_SETMASK, &prev_mask, NULL);    /* Restore sigs */
+
+    erro = olderrno;
     return;
 }
 
