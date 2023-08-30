@@ -335,7 +335,7 @@ void sigint_handler(int sig)
 
     Sigprocmask(SIG_SETMASK, &prev_mask, NULL);    /* Restore sigs */
 
-    erro = olderrno;
+    errno = olderrno;
     return;
 }
 
@@ -346,7 +346,23 @@ void sigint_handler(int sig)
  */
 void sigtstp_handler(int sig) 
 {
-    /* send SIGTSTP signal to all processes in foreground group */
+    int olderrno = errno;
+    sigset_t mask_all, prev_mask;
+
+    sigfillset(&mask_all);
+    Sigprocmask(SIG_BLOCK, &mask_all, &prev_mask); /* Block sigs, to read jobs safely */
+
+    /* obtain the foreground job's pid,
+     * which is also the pgid of its group
+     */
+    pid_t foreground_pid = fgpid(jobs);
+    if (foreground_pid > 0) {          /* affect only when foreground exists */
+        Kill(-foreground_pid, SIGTSTP); /* send SIGTSTP to foreground job and its descendents */
+    }
+
+    Sigprocmask(SIG_SETMASK, &prev_mask, NULL);    /* Restore sigs */
+
+    errno = olderrno;
     return;
 }
 
