@@ -304,10 +304,16 @@ void waitfg(pid_t pid)
  */
 void sigchld_handler(int sig) 
 {
+    /* use waitpid once to handle SIGCHLD */
     int status;
     if (waitpid(pid, &status, 0) < 0)
         unix_error("watifg: waitpid error");
 
+    /* handle child terminate status */
+
+    /* handle SIGSTOP or SIGTSTP status */
+
+    /* handle unknown status */
 
     return;
 }
