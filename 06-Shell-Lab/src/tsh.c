@@ -177,8 +177,10 @@ void eval(char *cmdline)
 
     if (!builtin_cmd(argv)) {
         if ((pid = Fork()) == 0) { /* Child runs the job */
+            /* Block sigs */
             setpgid(0, 0);
             addjob(jobs, getpid(), (bg ? BG : FG), cmdline);
+            /* Resume sigs */
             if (execve(argv[0], argv, environ) < 0) {
                 printf("%s: Command not found.\n", argv[0]);
                 exit(0);
