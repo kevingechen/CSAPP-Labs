@@ -312,6 +312,7 @@ void sigchld_handler(int sig)
         unix_error("watifg: waitpid error");
 
     /* handle child terminate status */
+    /* to block sigs */
 
     /* handle SIGSTOP or SIGTSTP status */
 
