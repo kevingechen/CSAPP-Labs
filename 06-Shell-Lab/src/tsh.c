@@ -306,6 +306,7 @@ void waitfg(pid_t pid)
  */
 void sigchld_handler(int sig) 
 {
+    int olderrno = errno;
     /* use waitpid once to handle SIGCHLD */
     int status;
     if (waitpid(pid, &status, 0) < 0)
@@ -318,6 +319,7 @@ void sigchld_handler(int sig)
 
     /* handle unknown status */
 
+    errno = olderrno;
     return;
 }
 
