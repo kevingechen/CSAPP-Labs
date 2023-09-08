@@ -169,6 +169,8 @@ void eval(char *cmdline)
     char buf[MAXLINE];   /* Holds modified command link */
     int bg;              /* Should the job run in bg or fg */
     pid_t pid;           /* Process id */
+    sigset_t mask_all, prev_mask; /* Signal masks to avoid concurrency bug */
+    sigfillset(&mask_all);
 
     strcpy(buf, cmdline);
     bg = parseline(buf, argv);
@@ -176,16 +178,21 @@ void eval(char *cmdline)
         return; /* Ignore empty lines */
 
     if (!builtin_cmd(argv)) {
+        /* TODO: block SIG_CHLD before Fork  */
         if ((pid = Fork()) == 0) { /* Child runs the job */
-            /* Block sigs */
+            /* TODO: Unblock SIG_CHLD to continue */
             setpgid(0, 0);
-            addjob(jobs, getpid(), (bg ? BG : FG), cmdline);
-            /* Resume sigs */
             if (execve(argv[0], argv, environ) < 0) {
                 printf("%s: Command not found.\n", argv[0]);
                 exit(0);
             }
         }
+
+
+        /* Block sigs, to add the child job safely */
+        Sigprocmask(SIG_BLOCK, &mask_all, &prev_mask); 
+        addjob(jobs, pid, (bg ? BG : FG), cmdline);
+        Sigprocmask(SIG_SETMASK, &prev_mask, NULL); 
 
         /* Parent waits for the forground job to terminate */
         if (!bg) {
