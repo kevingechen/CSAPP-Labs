@@ -171,6 +171,7 @@ void eval(char *cmdline)
     pid_t pid;           /* Process id */
     sigset_t mask_all, prev_mask; /* Signal masks to avoid concurrency bug */
     sigfillset(&mask_all);
+    sigset_t mask_chld; // TODO
 
     strcpy(buf, cmdline);
     bg = parseline(buf, argv);
