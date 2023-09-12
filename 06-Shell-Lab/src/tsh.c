@@ -169,9 +169,10 @@ void eval(char *cmdline)
     char buf[MAXLINE];   /* Holds modified command link */
     int bg;              /* Should the job run in bg or fg */
     pid_t pid;           /* Process id */
-    sigset_t mask_all, prev_mask; /* Signal masks to avoid concurrency bug */
+    sigset_t mask_all, prev_mask, mask_chld; /* Signal masks to avoid concurrency bug */
     sigfillset(&mask_all);
-    sigset_t mask_chld; // TODO
+    sigemptyset(&mask_chld);
+    sigaddset(&mask_chld, SIGCHLD);
 
     strcpy(buf, cmdline);
     bg = parseline(buf, argv);
