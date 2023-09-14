@@ -180,7 +180,8 @@ void eval(char *cmdline)
         return; /* Ignore empty lines */
 
     if (!builtin_cmd(argv)) {
-        /* TODO: block SIG_CHLD before Fork  */
+        /* block SIG_CHLD before Fork  */
+        Sigprocmask(SIG_BLOCK, &mask_chld, &prev_mask); 
         if ((pid = Fork()) == 0) { /* Child runs the job */
             /* TODO: Unblock SIG_CHLD to continue */
             setpgid(0, 0);
