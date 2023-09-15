@@ -184,6 +184,7 @@ void eval(char *cmdline)
         Sigprocmask(SIG_BLOCK, &mask_chld, &prev_mask); 
         if ((pid = Fork()) == 0) { /* Child runs the job */
             /* TODO: Unblock SIG_CHLD to continue */
+            Sigprocmask(SIG_UNBLOCK, &mask_chld, NULL); 
             setpgid(0, 0);
             if (execve(argv[0], argv, environ) < 0) {
                 printf("%s: Command not found.\n", argv[0]);
